@@ -1,0 +1,26 @@
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - dotnet restore
+    - dotnet build
+
+test:
+  stage: test
+  script:
+    - dotnet test
+
+deploy:
+  stage: deploy
+  script:
+    - dotnet publish -c Release -o ./publish
+  environment:
+    name: production
+  only:
+    - master
+  tags:
+    - docker
