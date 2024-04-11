@@ -90,11 +90,8 @@ namespace Lombeo.Api.Authorize
             app.UseSerilogRequestLogging();
             InitializeDatabase(app);
 
-            if (app.Configuration.GetValue<bool>("EnableSwagger"))
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.UseRouting();
             app.UseCors("AllowAll");
