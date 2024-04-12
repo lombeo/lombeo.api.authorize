@@ -91,7 +91,11 @@ namespace Lombeo.Api.Authorize
             InitializeDatabase(app);
 
             app.UseSwagger();
-            app.UseSwaggerUI();
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwaggerUI();
+            }
 
             app.UseRouting();
             app.UseCors("AllowAll");
