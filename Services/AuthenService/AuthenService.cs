@@ -7,6 +7,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
     public interface IAuthenService
     {
         Task<bool> SignUp(SignUpDTO model);
+        Task<bool> SignIn(SignInDTO model);
     }
 
     public class AuthenService : IAuthenService
@@ -16,6 +17,11 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
         public AuthenService(LombeoAuthorizeContext context)
         {
             _context = context;
+        }
+
+        public Task<bool> SignIn(SignInDTO model)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<bool> SignUp(SignUpDTO model)

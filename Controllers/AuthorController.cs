@@ -18,9 +18,15 @@ namespace Lombeo.Api.Authorize.Controllers
         }
 
         [HttpPost("sign-up")]
-        public async Task<ResponseDTO<bool>> Create([FromBody] SignUpDTO model)
+        public async Task<ResponseDTO<bool>> SignUp([FromBody] SignUpDTO model)
         {
             return await HandleException(_authenService.SignUp(model));
+        }
+
+        [HttpPost("sign-in")]
+        public async Task<ResponseDTO<bool>> SignIn([FromBody] SignInDTO model)
+        {
+            return await HandleException(_authenService.SignIn(model));
         }
     }
 }
