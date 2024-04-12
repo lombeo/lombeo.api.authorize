@@ -1,0 +1,23 @@
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-bullseye-slim AS base
+ARG branch_name
+ENV ASPNETCORE_ENVIRONMENT=$branch_name
+WORKDIR /app
+EXPOSE 80
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0-bullseye-slim AS build
+WORKDIR /src
+COPY ["Lombeo.Api.Authorize.csproj", ""]
+RUN dotnet restore "Lombeo.Api.Authorize.csproj"
+COPY . .
+WORKDIR "/src/"
+RUN dotnet build "Lombeo.Api.Authorize.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "Lombeo.Api.Authorize.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "Lombeo.Api.Authorize.dll"]
