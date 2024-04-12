@@ -1,4 +1,6 @@
 ﻿using Lombeo.Api.Authorize.DTO.AuthenDTO;
+using Lombeo.Api.Authorize.Infra;
+using Lombeo.Api.Authorize.Infra.Entities;
 
 namespace Lombeo.Api.Authorize.Services.AuthenService
 {
@@ -9,9 +11,29 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 
     public class AuthenService : IAuthenService
     {
-        public Task<bool> SignUp(SignUpDTO model)
+        private readonly LombeoAuthorizeContext _context;
+
+        public AuthenService(LombeoAuthorizeContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
+        }
+
+        public async Task<bool> SignUp(SignUpDTO model)
+        {
+            var account = new UserAuthen
+            {
+                Username = model.Username,
+                Email = model.Email,
+                PasswordHash = model.PasswordHash,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                Role = "User"
+            };
+
+            await _context.UserAuthens.AddAsync(account);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }
