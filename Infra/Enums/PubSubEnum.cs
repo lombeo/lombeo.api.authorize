@@ -2,5 +2,6 @@
 {
     public enum PubSubEnum : int
     {
+        UpdateUserMemory = 1001
     }
 }

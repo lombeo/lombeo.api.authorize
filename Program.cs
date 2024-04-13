@@ -1,4 +1,5 @@
 using Lombeo.Api.Authorize.Infra.Constants;
+using Lombeo.Api.Authorize.Services.AuthenService;
 using Lombeo.Api.Authorize.Services.CacheService;
 using System.ComponentModel.Design;
 
@@ -9,7 +10,7 @@ namespace Lombeo.Api.Authorize
         public static void Main(string[] args)
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-            AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+            //AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 
             var builder = WebApplication.CreateBuilder(args);
             // Add services to the container.
@@ -25,7 +26,7 @@ namespace Lombeo.Api.Authorize
             StaticVariable.TimeToday = timeToday;
 
             //scope.ServiceProvider.GetService<IDiscussionService>()?.InitDiscussionMemory();
-            //scope.ServiceProvider.GetService<IBlogService>()?.InitBlogMemory();
+            scope.ServiceProvider.GetService<IAuthenService>()?.InitUserMemory();
             //scope.ServiceProvider.GetService<IHelpService>()?.InitHelpMemory();
             app.Run();
         }

@@ -3,6 +3,7 @@ using Lombeo.Api.Authorize.Infra;
 using Lombeo.Api.Authorize.Infra.Constants;
 using Lombeo.Api.Authorize.Services.AuthenService;
 using Lombeo.Api.Authorize.Services.CacheService;
+using Lombeo.Api.Authorize.Services.Hosted;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -38,6 +39,8 @@ namespace Lombeo.Api.Authorize
             builder.Services.AddScoped<IPubSubService, PubSubService>();
             builder.Services.AddScoped<IAuthenService, AuthenService>();
             builder.Services.AddScoped<RedisConnManager>();
+            builder.Services.AddHostedService<DefaultBackgroundService>();
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddHealthChecks();
