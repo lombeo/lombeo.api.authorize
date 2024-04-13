@@ -56,6 +56,9 @@ namespace Lombeo.Api.Authorize
                     });
             });
 
+            string certPath = builder.Environment.ContentRootPath + StaticVariable.JwtValidation.CertificatePath;
+            StaticVariable.JwtValidation.CertificatePath = certPath;
+
             // Adding Authentication
             builder.Services.AddAuthentication(options =>
             {
@@ -67,7 +70,7 @@ namespace Lombeo.Api.Authorize
             // Adding Jwt Bearer
             .AddJwtBearer(options =>
             {
-                X509Certificate2 cert = new X509Certificate2(builder.Environment.ContentRootPath + StaticVariable.JwtValidation.CertificatePath, StaticVariable.JwtValidation.CertificatePassword);
+                X509Certificate2 cert = new X509Certificate2(StaticVariable.JwtValidation.CertificatePath, StaticVariable.JwtValidation.CertificatePassword);
                 SecurityKey key = new X509SecurityKey(cert);
 
                 options.SaveToken = true;

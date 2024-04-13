@@ -1,11 +1,20 @@
-﻿using Lombeo.Api.Authorize.DTO;
+﻿using DocumentFormat.OpenXml.VariantTypes;
+using Lombeo.Api.Authorize.DTO;
 using Lombeo.Api.Authorize.DTO.AuthenDTO;
 using Lombeo.Api.Authorize.Infra;
 using Lombeo.Api.Authorize.Infra.Constants;
 using Lombeo.Api.Authorize.Infra.Entities;
 using Lombeo.Api.Authorize.Infra.Enums;
 using Lombeo.Api.Authorize.Services.CacheService;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Lombeo.Api.Authorize.Services.AuthenService
 {
@@ -15,7 +24,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
         void UpdateUserMemory(int userId);
         void TriggerUpdateUserMemory(int userId);
         Task<bool> SignUp(SignUpDTO model);
-        Task<bool> SignIn(SignInDTO model);
+        Task<string> SignIn(SignInDTO model);
         Task<List<User>> List();
     }
 
@@ -23,15 +32,19 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
     {
         private readonly LombeoAuthorizeContext _context;
         private readonly IPubSubService _pubSubService;
-        private ICacheService _cacheService;
         private readonly ILogger<AuthenService> _logger;
+        private readonly X509Certificate2 _certificate;
+        private readonly string _validIssuer;
+        private readonly string _validAudience;
 
-        public AuthenService(LombeoAuthorizeContext context, IPubSubService pubSubService, ILogger<AuthenService> logger, ICacheService cacheService)
+        public AuthenService(LombeoAuthorizeContext context, IPubSubService pubSubService, ILogger<AuthenService> logger)
         {
             _context = context;
             _pubSubService = pubSubService;
             _logger = logger;
-            _cacheService = cacheService;
+            _certificate = new X509Certificate2(StaticVariable.JwtValidation.CertificatePath, StaticVariable.JwtValidation.CertificatePassword);
+            _validIssuer = StaticVariable.JwtValidation.ValidIssuer;
+            _validAudience = StaticVariable.JwtValidation.ValidAudience;
         }
 
         public void InitUserMemory()
@@ -84,18 +97,86 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
             return allUsers.ToList();
         }
 
-        public Task<bool> SignIn(SignInDTO model)
+        public async Task<string> SignIn(SignInDTO model)
         {
-            throw new NotImplementedException();
+            var user = await IsValidLogin(model);
+            if (user != null)
+            {
+                // Tạo các claim chứa thông tin của người dùng
+                var claims = new[]
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Role, user.Role)
+                };
+
+                // Tạo các token descriptor
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.UtcNow.AddDays(7), // Thời gian hết hạn của token
+                    Issuer = _validIssuer,
+                    Audience = _validAudience,
+                    SigningCredentials = new SigningCredentials(new X509SecurityKey(_certificate), SecurityAlgorithms.RsaSha256Signature)
+                };
+
+                // Tạo JWT token sử dụng JwtSecurityTokenHandler
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+
+                // Trả về token dưới dạng string
+                var tokenString = tokenHandler.WriteToken(token);
+
+                // Tạo các thông tin đăng nhập cho người dùng
+                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+                identity.AddClaim(new Claim(ClaimTypes.Name, user.Username));
+                identity.AddClaim(new Claim(ClaimTypes.Role, user.Role));
+
+                return tokenString;
+            }
+            else
+            {
+                throw new ApplicationException(Message.AuthenMessage.INVALID_LOGIN);
+            }
+        }
+
+        private async Task<User> IsValidLogin(SignInDTO model)
+        {
+            var data = StaticVariable.UserMemory.ToList();
+            var password = HashPassword(model.Password);
+
+            if (data.Any(t => t.Username.Equals(model.Username) && t.PasswordHash.Equals(password)))
+            {
+                return await FindUserByUsername(model.Username);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public async Task<User> FindUserByUsername(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                throw new ApplicationException(Message.CommonMessage.MISSING_PARAM);
+            }
+            var data = StaticVariable.UserMemory.ToList();
+            var result = data.FirstOrDefault(t => t.Username == username);
+
+            return result;
         }
 
         public async Task<bool> SignUp(SignUpDTO model)
         {
+            ValidateSignUp(model);
+
+            var password = HashPassword(model.PasswordHash);
+
             var account = new User
             {
                 Username = model.Username,
                 Email = model.Email,
-                PasswordHash = model.PasswordHash,
+                PasswordHash = password,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 Role = "User"
@@ -104,7 +185,54 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
             await _context.Users.AddAsync(account);
             await _context.SaveChangesAsync();
 
+            TriggerUpdateUserMemory(account.Id);
+
             return true;
+        }
+
+        private void ValidateSignUp(SignUpDTO model)
+        {
+            var data = StaticVariable.UserMemory.ToList();
+
+            if (data.Any(t => t.Email.ToLower().Equals(model.Email.ToLower())))
+            {
+                throw new ApplicationException(Message.AuthenMessage.EXIST_EMAIL);
+            }
+
+            if (data.Any(t => t.Username.ToLower().Equals(model.Username.ToLower())))
+            {
+                throw new ApplicationException(Message.AuthenMessage.EXIST_USERNAME);
+            }
+
+            if (model.Username.Contains(" "))
+            {
+                throw new ApplicationException(Message.AuthenMessage.INVALID_USERNAME);
+            }
+
+            if (!Regex.IsMatch(model.Email, PatternConst.EMAIL_PATTERN))
+            {
+                throw new ApplicationException(Message.AuthenMessage.INVALID_EMAIL);
+            }
+
+            if (!Regex.IsMatch(model.PasswordHash, PatternConst.PASSWORD_PATTERN))
+            {
+                throw new ApplicationException(Message.AuthenMessage.INVALID_PASSWORD);
+            }
+        }
+
+        public string HashPassword(string password)
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
         }
 
         //public async Task<List<User>> ListUserWithCache()
