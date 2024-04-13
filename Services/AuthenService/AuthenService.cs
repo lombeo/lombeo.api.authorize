@@ -9,7 +9,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
     {
         Task<bool> SignUp(SignUpDTO model);
         Task<bool> SignIn(SignInDTO model);
-        Task<List<UserAuthen>> List();
+        Task<List<User>> List();
     }
 
     public class AuthenService : IAuthenService
@@ -21,9 +21,9 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
             _context = context;
         }
 
-        public async Task<List<UserAuthen>> List()
+        public async Task<List<User>> List()
         {
-            return await _context.UserAuthens.ToListAsync();
+            return await _context.Users.ToListAsync();
         }
 
         public Task<bool> SignIn(SignInDTO model)
@@ -33,7 +33,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 
         public async Task<bool> SignUp(SignUpDTO model)
         {
-            var account = new UserAuthen
+            var account = new User
             {
                 Username = model.Username,
                 Email = model.Email,
@@ -43,7 +43,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
                 Role = "User"
             };
 
-            await _context.UserAuthens.AddAsync(account);
+            await _context.Users.AddAsync(account);
             await _context.SaveChangesAsync();
 
             return true;

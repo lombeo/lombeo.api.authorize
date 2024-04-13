@@ -2,7 +2,7 @@
 
 namespace Lombeo.Api.Authorize.Infra.Entities
 {
-    public class UserAuthen : CommonEntity
+    public class User : CommonEntity
     {
         public int Id { get; set; }
         public string Username { get; set; }
@@ -15,7 +15,7 @@ namespace Lombeo.Api.Authorize.Infra.Entities
     {
         public static void Config(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UserAuthen>(entity =>
+            modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("Users");
                 entity.HasKey(e => e.Id);

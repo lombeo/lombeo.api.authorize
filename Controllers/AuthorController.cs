@@ -31,7 +31,7 @@ namespace Lombeo.Api.Authorize.Controllers
         }
 
         [HttpGet("list-user")]
-        public async Task<ResponseDTO<List<UserAuthen>>> List()
+        public async Task<ResponseDTO<List<User>>> List()
         {
             return await HandleException(_authenService.List());
         }

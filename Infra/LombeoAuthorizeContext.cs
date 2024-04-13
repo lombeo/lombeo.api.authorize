@@ -16,7 +16,7 @@ namespace Lombeo.Api.Authorize.Infra
         {
         }
 
-        public virtual DbSet<UserAuthen> UserAuthens { get; set; }
+        public virtual DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
