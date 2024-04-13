@@ -52,34 +52,34 @@ namespace Lombeo.Api.Authorize
                     });
             });
 
-            //Adding Authentication
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+            ////Adding Authentication
+            //builder.Services.AddAuthentication(options =>
+            //{
+            //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            //})
 
-            // Adding Jwt Bearer
-            .AddJwtBearer(options =>
-            {
-                X509Certificate2 cert = new X509Certificate2(builder.Environment.ContentRootPath + StaticVariable.JwtValidation.CertificatePath, StaticVariable.JwtValidation.CertificatePassword);
-                SecurityKey key = new X509SecurityKey(cert);
+            //// Adding Jwt Bearer
+            //.AddJwtBearer(options =>
+            //{
+            //    X509Certificate2 cert = new X509Certificate2(builder.Environment.ContentRootPath + StaticVariable.JwtValidation.CertificatePath, StaticVariable.JwtValidation.CertificatePassword);
+            //    SecurityKey key = new X509SecurityKey(cert);
 
-                options.SaveToken = true;
-                options.RequireHttpsMetadata = false;
-                options.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidAudience = StaticVariable.JwtValidation.ValidAudience,
-                    ValidIssuer = StaticVariable.JwtValidation.ValidIssuer,
-                    IssuerSigningKey = key,
-                    ValidateLifetime = false,
-                };
-            });
+            //    options.SaveToken = true;
+            //    options.RequireHttpsMetadata = false;
+            //    options.TokenValidationParameters = new TokenValidationParameters()
+            //    {
+            //        ValidateIssuer = true,
+            //        ValidateAudience = true,
+            //        ValidAudience = StaticVariable.JwtValidation.ValidAudience,
+            //        ValidIssuer = StaticVariable.JwtValidation.ValidIssuer,
+            //        IssuerSigningKey = key,
+            //        ValidateLifetime = false,
+            //    };
+            //});
 
-            builder.Services.AddAuthorization();
+            //builder.Services.AddAuthorization();
 
             builder.Services.AddDbContext<LombeoAuthorizeContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddScoped<LombeoAuthorizeContext>();
