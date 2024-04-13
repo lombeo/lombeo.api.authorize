@@ -1,6 +1,7 @@
 ﻿using Lombeo.Api.Authorize.DTO.AuthenDTO;
 using Lombeo.Api.Authorize.Infra;
 using Lombeo.Api.Authorize.Infra.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lombeo.Api.Authorize.Services.AuthenService
 {
@@ -8,6 +9,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
     {
         Task<bool> SignUp(SignUpDTO model);
         Task<bool> SignIn(SignInDTO model);
+        Task<List<UserAuthen>> List();
     }
 
     public class AuthenService : IAuthenService
@@ -17,6 +19,11 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
         public AuthenService(LombeoAuthorizeContext context)
         {
             _context = context;
+        }
+
+        public async Task<List<UserAuthen>> List()
+        {
+            return await _context.UserAuthens.ToListAsync();
         }
 
         public Task<bool> SignIn(SignInDTO model)
