@@ -1,4 +1,5 @@
-﻿using Lombeo.Api.Authorize.DTO.AuthenDTO;
+﻿using Lombeo.Api.Authorize.DTO;
+using Lombeo.Api.Authorize.DTO.AuthenDTO;
 using Lombeo.Api.Authorize.DTO.Common;
 using Lombeo.Api.Authorize.Infra.Constants;
 using Lombeo.Api.Authorize.Infra.Entities;
@@ -39,5 +40,17 @@ namespace Lombeo.Api.Authorize.Controllers
         {
             return await HandleException(_authenService.List());
         }
+
+        [HttpGet("get-user-profile")]
+        public async Task<ResponseDTO<UserDTO>> GetUserByToken()
+        {
+            return await HandleException(_authenService.GetUserProfile(User.Identity));
+        }
+
+        [HttpPost("save-user-profile")]
+        public async Task<ResponseDTO<int>> SaveUserProfile([FromBody] SaveProfileDTO model)
+        {
+			return await HandleException(_authenService.SaveUserProfile(model));
+		}
     }
 }
