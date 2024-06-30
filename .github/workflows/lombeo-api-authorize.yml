@@ -26,6 +26,14 @@ jobs:
         run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
       - name: Publish
         run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+      - name: Delete old artifacts
+        run: |
+          artifacts=$(gh api -X GET "repos/${{ github.repository }}/actions/artifacts" | jq -r '.artifacts[] | select(.expired == false) | .id')
+          for artifact in $artifacts; do
+            gh api -X DELETE "repos/${{ github.repository }}/actions/artifacts/$artifact"
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish Artifacts
         uses: actions/upload-artifact@v3
         with:
