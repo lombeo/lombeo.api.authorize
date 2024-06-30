@@ -33,7 +33,9 @@ jobs:
           curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
           sudo apt-get install gh -y
       - name: Authenticate with GitHub CLI
-        run: gh auth login --with-token <<< "${{ secrets.LOMBEO_TOKEN }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.LOMBEO_TOKEN }}
+        run: echo $GITHUB_TOKEN | gh auth login --with-token
       - name: Delete old artifacts
         run: |
           artifacts=$(gh api -X GET "repos/${{ github.repository }}/actions/artifacts" | jq -r '.artifacts[] | select(.expired == false) | .id')
