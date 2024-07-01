@@ -34,8 +34,8 @@ jobs:
           sudo apt-get install gh -y
       - name: Authenticate with GitHub CLI
         env:
-          GITHUB_TOKEN: ${{ secrets.LOMBEO_TOKEN }}
-        run: echo $GITHUB_TOKEN | gh auth login --with-token
+          LOMBEO_TOKEN: ${{ secrets.LOMBEO_TOKEN }}
+        run: echo $LOMBEO_TOKEN | gh auth login --with-token
       - name: Delete old artifacts
         run: |
           artifacts=$(gh api -X GET "repos/${{ github.repository }}/actions/artifacts" | jq -r '.artifacts[] | select(.expired == false) | .id')
@@ -43,7 +43,7 @@ jobs:
             gh api -X DELETE "repos/${{ github.repository }}/actions/artifacts/$artifact"
           done
         env:
-          GITHUB_TOKEN: ${{ secrets.LOMBEO_TOKEN }}
+          LOMBEO_TOKEN: ${{ secrets.LOMBEO_TOKEN }}
       - name: Publish Artifacts
         uses: actions/upload-artifact@v3
         with:
