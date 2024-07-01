@@ -7,7 +7,6 @@ namespace Lombeo.Api.Authorize.DTO.CourseDTO
 		public int Id { get; set; }
 		public string CourseName { get; set; }
 		public string CourseDescription { get; set; }
-		public string AuthorName { get; set; }
 		public double Price { get; set; }
 		public bool HasCert { get; set; }
 		public ContentType ContentType { get; set; }
