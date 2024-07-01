@@ -1,6 +1,7 @@
 ﻿using Lombeo.Api.Authorize.DTO.Common;
 using Lombeo.Api.Authorize.Infra.Constants;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Lombeo.Api.Authorize.Controllers
 {
@@ -11,7 +12,15 @@ namespace Lombeo.Api.Authorize.Controllers
         {
         }
 
-        public async Task<ResponseDTO<T>> HandleException<T>(Task<T> task)
+		public int UserId
+		{
+			get
+			{
+				return int.Parse(User?.Claims?.FirstOrDefault(t => t.Type == ClaimTypes.NameIdentifier)?.Value ?? "0");
+			}
+		}
+
+		public async Task<ResponseDTO<T>> HandleException<T>(Task<T> task)
         {
             try
             {

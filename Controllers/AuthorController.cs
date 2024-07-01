@@ -50,6 +50,7 @@ namespace Lombeo.Api.Authorize.Controllers
         [HttpPost("save-user-profile")]
         public async Task<ResponseDTO<int>> SaveUserProfile([FromBody] SaveProfileDTO model)
         {
+            model.ActionBy = UserId;
 			return await HandleException(_authenService.SaveUserProfile(model));
 		}
     }

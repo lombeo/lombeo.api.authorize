@@ -1,6 +1,6 @@
 ﻿namespace Lombeo.Api.Authorize.DTO.AuthenDTO
 {
-	public class SaveProfileDTO
+	public class SaveProfileDTO : BaseRequest
 	{
 		public int UserId { get; set; }
 		public string FullName { get; set; }

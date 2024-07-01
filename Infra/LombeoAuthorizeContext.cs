@@ -18,12 +18,14 @@ namespace Lombeo.Api.Authorize.Infra
 
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<UserProfile> UserProfiles { get; set; }
+        public virtual DbSet<LearningCourse> LearningCourses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             UserAuthenConfiguration.Config(modelBuilder);
             UserProfileConfiguration.Config(modelBuilder);
+            LearningCourseConfiguration.Config(modelBuilder);
             
             //OnModelCreatingPartial(modelBuilder);
         }

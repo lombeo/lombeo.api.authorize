@@ -277,6 +277,14 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 		{
 			var data = await _context.UserProfiles.FirstOrDefaultAsync(t => t.UserId == model.UserId);
 
+			if(model.ActionBy != model.UserId)
+			{
+				if(!IsManager(model.ActionBy))
+				{
+					throw new ApplicationException(Message.CommonMessage.NOT_ALLOWED);
+				}
+			}
+
 			if (data == null)
 			{
 				data = new UserProfile()
@@ -312,7 +320,19 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 			return data.Id;
 		}
 
-
+		public bool IsManager(int userId)
+		{
+			IEnumerable<User> allUsers = StaticVariable.UserMemory.ToList();
+			var user = allUsers.FirstOrDefault(t => t.Id == userId);
+			if (user != null)
+			{
+				if(user.Role == RoleConstValue.CONTENT_MANAGER)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
 		//public async Task<List<User>> ListUserWithCache()
 		//{
 		//    string cacheKey = RedisCacheKey.LIST_USER;
