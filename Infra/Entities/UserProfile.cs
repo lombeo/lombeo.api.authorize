@@ -12,6 +12,7 @@ namespace Lombeo.Api.Authorize.Infra.Entities
         public string Address { get; set; }
         public string PicProfile { get; set; }
         public DateTime Dob {  get; set; }
+        public string? Note { get; set; }
         public string? School { get; set; }
         public string? WorkAt { get; set; }
     }
@@ -51,6 +52,8 @@ namespace Lombeo.Api.Authorize.Infra.Entities
 
                 entity.Property(e => e.Dob)
                     .IsRequired();
+
+                entity.Property(e => e.Note);
 
                 entity.Property(e => e.School)
                     .HasMaxLength(255);

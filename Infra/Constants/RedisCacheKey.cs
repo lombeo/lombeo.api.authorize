@@ -4,5 +4,6 @@
     {
         public const string LIST_USER = "LIST_USER";
         public const string LIST_COURSE = "LIST_COURSE";
+        public const string LIST_DOCTOR = "LIST_DOCTOR";
     }
 }
