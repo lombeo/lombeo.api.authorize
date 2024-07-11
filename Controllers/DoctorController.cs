@@ -41,5 +41,36 @@ namespace Lombeo.Api.Authorize.Controllers
         {
             return await HandleException(_childcareService.DeleteDoctor(id));
         }
+
+        [HttpGet("get-all-booking")]
+        public async Task<ResponseDTO<List<Booking>>> GetAllBooking()
+        {
+            return await HandleException(_childcareService.GetAllBooking());
+        }
+
+        [HttpPost("save-booking")]
+        public async Task<ResponseDTO<int>> SaveBooking([FromBody] SaveBookingDTO model)
+        {
+            return await HandleException(_childcareService.SaveBooking(model));
+        }
+
+        [HttpGet("get-booking-by-id")]
+        public async Task<ResponseDTO<Booking>> GetBookingById([FromQuery] int id)
+        {
+            return await HandleException(_childcareService.GetBookingById(id));
+
+        }
+
+        [HttpDelete("delete-booking")]
+        public async Task<ResponseDTO<bool>> DeleteBooking([FromQuery] int id)
+        {
+            return await HandleException(_childcareService.DeleteBooking(id));
+        }
+
+        [HttpPost("switch-booking-status")]
+        public async Task<ResponseDTO<int>> SwitchBookingStatus([FromBody] int status, int id)
+        {
+            return await HandleException(_childcareService.SwitchBookingStatus(status, id));
+        }
     }
 }

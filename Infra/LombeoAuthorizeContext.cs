@@ -20,6 +20,7 @@ namespace Lombeo.Api.Authorize.Infra
         public virtual DbSet<UserProfile> UserProfiles { get; set; }
         public virtual DbSet<LearningCourse> LearningCourses { get; set; }
         public virtual DbSet<Doctor> Doctors { get; set; }
+        public virtual DbSet<Booking> Bookings { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -28,7 +29,8 @@ namespace Lombeo.Api.Authorize.Infra
             UserAuthenConfiguration.Config(modelBuilder);
             UserProfileConfiguration.Config(modelBuilder);
             LearningCourseConfiguration.Config(modelBuilder);
-            
+            DoctorConfiguration.Config(modelBuilder);
+            BookingConfiguration.Config(modelBuilder);
             //OnModelCreatingPartial(modelBuilder);
         }
 

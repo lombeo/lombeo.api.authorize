@@ -30,7 +30,7 @@ namespace Lombeo.Api.Authorize.Controllers
 
         [AllowAnonymous]
         [HttpPost("sign-in")]
-        public async Task<ResponseDTO<string>> SignIn([FromBody] SignInDTO model)
+        public async Task<ResponseDTO<ReturnSignInDTO>> SignIn([FromBody] SignInDTO model)
         {
             return await HandleException(_authenService.SignIn(model));
         }
