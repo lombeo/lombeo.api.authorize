@@ -146,7 +146,7 @@ namespace Lombeo.Api.Authorize.Services.ChildcareService
             entity.Dob = model.Dob;
             entity.Note = model.Note;
             entity.DoctorId = model.DoctorId;
-            entity.Shift = model.Shift;
+            entity.ShiftTo = model.Shift;
             entity.Status = 0;
 
             if (model.Id != 0)
@@ -217,6 +217,7 @@ namespace Lombeo.Api.Authorize.Services.ChildcareService
                 booking.Status = status;
                 _context.Update(booking);
                 await _context.SaveChangesAsync();
+                _ = _cacheService.DeleteAsync(RedisCacheKey.LIST_BOOKING);
                 return booking.Status;
             }
             throw new ApplicationException(Message.CommonMessage.NOT_FOUND);

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Lombeo.Api.Authorize.Migrations
 {
     [DbContext(typeof(LombeoAuthorizeContext))]
-    [Migration("20240701144856_add-Learning-Course")]
-    partial class addLearningCourse
+    [Migration("20240711193530_add-doctor")]
+    partial class adddoctor
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,135 @@ namespace Lombeo.Api.Authorize.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Lombeo.Api.Authorize.Infra.Entities.Booking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("Dob")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("DoctorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("Gender")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("ShiftTo")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Deleted");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Bookings", (string)null);
+                });
+
+            modelBuilder.Entity("Lombeo.Api.Authorize.Infra.Entities.Doctor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BriefInfo")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("Deleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Info")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ProfilePic")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Room")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Shift")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Deleted");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("IX_Doctors_Name");
+
+                    b.ToTable("Doctors", (string)null);
+                });
 
             modelBuilder.Entity("Lombeo.Api.Authorize.Infra.Entities.LearningCourse", b =>
                 {
@@ -148,6 +277,9 @@ namespace Lombeo.Api.Authorize.Migrations
 
                     b.Property<bool>("Gender")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()

@@ -1,4 +1,5 @@
 ﻿using Lombeo.Api.Authorize.DTO.DoctorDTO;
+using Lombeo.Api.Authorize.Infra.Helps;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lombeo.Api.Authorize.Infra.Entities
@@ -30,12 +31,17 @@ namespace Lombeo.Api.Authorize.Infra.Entities
                 entity.Property(e => e.BriefInfo).HasMaxLength(500);
                 entity.Property(e => e.Room).HasMaxLength(50);
                 entity.Property(e => e.Location).HasMaxLength(100);
+
                 entity.Property(e => e.Shift)
+                    .HasConversion(new JsonValueConverter<List<int>>())
                     .HasColumnType("jsonb");
+
                 entity.Property(e => e.Price)
                     .IsRequired()
                     .HasColumnType("decimal(18,2)");
+
                 entity.Property(e => e.Info)
+                    .HasConversion(new JsonValueConverter<List<DoctorInfo>>())
                     .HasColumnType("jsonb");
 
                 entity.Property(e => e.CreatedAt)
@@ -50,5 +56,4 @@ namespace Lombeo.Api.Authorize.Infra.Entities
             });
         }
     }
-
 }

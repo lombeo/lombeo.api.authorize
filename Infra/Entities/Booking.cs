@@ -13,7 +13,7 @@ namespace Lombeo.Api.Authorize.Infra.Entities
         public DateTime Dob { get; set; }
         public string? Note { get; set; }
         public int DoctorId { get; set; }
-        public int Shift { get; set; }
+        public int ShiftTo { get; set; }
         public int Status { get; set; }
     }
 
@@ -49,7 +49,7 @@ namespace Lombeo.Api.Authorize.Infra.Entities
 
                 entity.Property(e => e.Note);
                 entity.Property(e => e.DoctorId);
-                entity.Property(e => e.Shift);
+                entity.Property(e => e.ShiftTo);
                 entity.Property(e => e.Status);
                 entity.HasIndex(e => e.Email).IsUnique();
             });
