@@ -24,7 +24,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 		void UpdateUserMemory(int userId);
 		void TriggerUpdateUserMemory(int userId);
 		Task<bool> SignUp(SignUpDTO model);
-		Task<string> SignIn(SignInDTO model);
+		Task<ReturnSignInDTO> SignIn(SignInDTO model);
 		Task<List<User>> List();
 		Task<UserDTO> GetUserProfile(System.Security.Principal.IIdentity? identity);
 		Task<int> SaveUserProfile(SaveProfileDTO userProfile);
@@ -99,7 +99,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 			return allUsers.ToList();
 		}
 
-		public async Task<string> SignIn(SignInDTO model)
+		public async Task<ReturnSignInDTO> SignIn(SignInDTO model)
 		{
 			var user = await IsValidLogin(model);
 			if (user != null)
@@ -135,7 +135,13 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 				identity.AddClaim(new Claim(ClaimTypes.Name, user.Username));
 				identity.AddClaim(new Claim(ClaimTypes.Role, user.Role));
 
-				return tokenString;
+				return new ReturnSignInDTO()
+				{
+                    Token = tokenString,
+					Username = user.Username,
+					Email = user.Email,
+					Role = user.Role
+                };
 			}
 			else
 			{
