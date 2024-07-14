@@ -17,7 +17,7 @@ namespace Lombeo.Api.Authorize.Services.ChildcareService
         Task<List<Booking>> GetAllBooking();
         Task<Booking> GetBookingById(int id);
         Task<bool> DeleteBooking(int id);
-        Task<int> SwitchBookingStatus(int status, int id);
+        Task<int> SwitchBookingStatus(SwitchStatusDTO model);
         Task<int> SaveBooking(SaveBookingDTO model);
     }
 
@@ -209,12 +209,12 @@ namespace Lombeo.Api.Authorize.Services.ChildcareService
             return true;
         }
 
-        public async Task<int> SwitchBookingStatus(int status, int id)
+        public async Task<int> SwitchBookingStatus(SwitchStatusDTO model)
         {
-            var booking = await _context.Bookings.FirstOrDefaultAsync(t => t.Id == id);
+            var booking = await _context.Bookings.FirstOrDefaultAsync(t => t.Id == model.Id);
             if(booking != null)
             {
-                booking.Status = status;
+                booking.Status = model.Status;
                 _context.Update(booking);
                 await _context.SaveChangesAsync();
                 _ = _cacheService.DeleteAsync(RedisCacheKey.LIST_BOOKING);
