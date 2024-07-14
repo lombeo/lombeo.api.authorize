@@ -124,7 +124,6 @@ namespace Lombeo.Api.Authorize.Services.ChildcareService
             var entity = new Booking()
             {
                 Id = 0,
-                CreatedAt = DateTime.UtcNow,
                 Deleted = false
             };
 
@@ -151,10 +150,13 @@ namespace Lombeo.Api.Authorize.Services.ChildcareService
 
             if (model.Id != 0)
             {
-                _context.Update(entity);
+				entity.UpdatedAt = DateTime.UtcNow;
+				_context.Update(entity);
             }
             else
             {
+                entity.CreatedAt = DateTime.UtcNow;
+                entity.UpdatedAt = DateTime.UtcNow;
                 await _context.AddAsync(entity);
             }
 

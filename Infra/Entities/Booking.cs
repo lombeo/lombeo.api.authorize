@@ -51,7 +51,7 @@ namespace Lombeo.Api.Authorize.Infra.Entities
                 entity.Property(e => e.DoctorId);
                 entity.Property(e => e.ShiftTo);
                 entity.Property(e => e.Status);
-                entity.HasIndex(e => e.Email).IsUnique();
+                entity.HasIndex(e => e.Email);
             });
         }
     }
