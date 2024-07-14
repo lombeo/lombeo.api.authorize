@@ -68,7 +68,7 @@ namespace Lombeo.Api.Authorize.Controllers
         }
 
         [HttpPost("switch-booking-status")]
-        public async Task<ResponseDTO<int>> SwitchBookingStatus([FromBody] int status, int id)
+        public async Task<ResponseDTO<int>> SwitchBookingStatus([FromQuery] int status, int id)
         {
             return await HandleException(_childcareService.SwitchBookingStatus(status, id));
         }
