@@ -1,4 +1,5 @@
 ﻿using Lombeo.Api.Authorize.DTO.Configuration;
+using Lombeo.Api.Authorize.Hubs;
 using Lombeo.Api.Authorize.Infra;
 using Lombeo.Api.Authorize.Infra.Constants;
 using Lombeo.Api.Authorize.Services.AuthenService;
@@ -6,6 +7,7 @@ using Lombeo.Api.Authorize.Services.CacheService;
 using Lombeo.Api.Authorize.Services.ChildcareService;
 using Lombeo.Api.Authorize.Services.CourseService;
 using Lombeo.Api.Authorize.Services.Hosted;
+using Lombeo.Api.Authorize.Services.MessageService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,6 +30,7 @@ namespace Lombeo.Api.Authorize
             {
                 configuration.ReadFrom.Configuration(hostContext.Configuration);
             });
+            builder.Services.AddSignalR();
             builder.Services.AddHttpClient();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllers();
@@ -42,6 +45,7 @@ namespace Lombeo.Api.Authorize
             builder.Services.AddScoped<IAuthenService, AuthenService>();
             builder.Services.AddScoped<ICourseService, CourseService>();
             builder.Services.AddScoped<IChildcareService, ChildcareService>();
+            builder.Services.AddScoped<IMessageService, MessageService>();
             builder.Services.AddScoped<RedisConnManager>();
             builder.Services.AddHostedService<DefaultBackgroundService>();
 
@@ -111,6 +115,7 @@ namespace Lombeo.Api.Authorize
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/chatHub");
                 endpoints.MapHealthChecks("/author/healthy");
                 endpoints.MapGet("/", async context =>
                 {
