@@ -2,7 +2,6 @@
 {
 	public enum ContentType
 	{
-		LearningCourse = 1,
-		Blog = 2
+		MultipleChoice, Pronounce
 	}
 }

@@ -28,6 +28,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 		Task<List<User>> List();
 		Task<UserDTO> GetUserProfile(System.Security.Principal.IIdentity? identity);
 		Task<int> SaveUserProfile(SaveProfileDTO userProfile);
+		Task<User> FindUserByUsername(string username);
 	}
 
 	public class AuthenService : IAuthenService

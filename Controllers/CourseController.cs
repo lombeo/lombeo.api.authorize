@@ -22,7 +22,7 @@ namespace Lombeo.Api.Authorize.Controllers
 
 		[HttpGet("get-course-by-id")]
 		[AllowAnonymous]
-		public async Task<ResponseDTO<LearningCourse>> GetCourseById([FromQuery] int courseId)
+		public async Task<ResponseDTO<LearningCourseDTO>> GetCourseById([FromQuery] int courseId)
 		{
 			return await HandleException(_courseService.GetCourseById(courseId));
 		}

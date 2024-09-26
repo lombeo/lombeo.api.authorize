@@ -53,5 +53,11 @@ namespace Lombeo.Api.Authorize.Controllers
             model.ActionBy = UserId;
 			return await HandleException(_authenService.SaveUserProfile(model));
 		}
+
+        [HttpGet("get-user-by-username")]
+        public async Task<ResponseDTO<User>> FindUserByUsername([FromQuery] string username)
+        {
+            return await HandleException(_authenService.FindUserByUsername(username));
+        }
     }
 }

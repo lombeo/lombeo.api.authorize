@@ -9,45 +9,52 @@ namespace Lombeo.Api.Authorize.Infra.Entities
         public string CourseName { get; set; }
         public string CourseDescription { get; set; }
         public int AuthorId { get; set; }
-        public double Price { get; set; }
-        public bool HasCert {  get; set; }
-        public ContentType ContentType { get; set; } = ContentType.LearningCourse;
+        public string[] Skills {  get; set; }
+		public string[] WhatYouWillLearn {  get; set; }
+		public bool HasCert {  get; set; }
+		public decimal Price { get; set; }
     }
 
-	public static class LearningCourseConfiguration
-	{
-		public static void Config(ModelBuilder modelBuilder)
-		{
-			modelBuilder.Entity<LearningCourse>(entity =>
-			{
-				entity.ToTable("LearningCourses");
-				entity.HasKey(e => e.Id);
+    public static class LearningCourseConfiguration
+    {
+        public static void Config(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<LearningCourse>(entity =>
+            {
+                entity.ToTable("LearningCourses");
 
-				entity.Property(e => e.CourseName)
-					.IsRequired()
-					.HasMaxLength(100);
+                // Khóa chính
+                entity.HasKey(e => e.Id);
 
-				entity.Property(e => e.CourseDescription)
-					.HasMaxLength(500);
+                // Cấu hình các thuộc tính
+                entity.Property(e => e.CourseName)
+                    .IsRequired()
+                    .HasMaxLength(255);
 
-				entity.Property(e => e.Price)
-					.HasColumnType("decimal(18,2)");
+                entity.Property(e => e.CourseDescription);
 
-				entity.Property(e => e.UpdatedAt)
-					.HasColumnType("timestamp without time zone");
+                entity.Property(e => e.AuthorId)
+                    .IsRequired();
 
-				entity.Property(e => e.CreatedAt)
-					.HasColumnType("timestamp without time zone");
+                entity.Property(e => e.Skills)
+                    .IsRequired()
+                    .HasConversion(
+                        v => string.Join(',', v),
+                        v => v.Split(',', StringSplitOptions.RemoveEmptyEntries));
 
-				entity.HasIndex(e => e.Deleted);
+                entity.Property(e => e.WhatYouWillLearn)
+                    .IsRequired()
+                    .HasConversion(
+                        v => string.Join(',', v),
+                        v => v.Split(',', StringSplitOptions.RemoveEmptyEntries));
 
-				// Define foreign key relationship
-				entity.HasOne<User>()
-					.WithMany()
-					.HasForeignKey(e => e.AuthorId)
-					.HasPrincipalKey(u => u.Id)
-					.OnDelete(DeleteBehavior.Restrict);
-			});
-		}
-	}
+                entity.Property(e => e.HasCert)
+                    .IsRequired();
+
+                entity.Property(e => e.Price)
+                    .HasColumnType("decimal(18,2)");
+            });
+        }
+    }
+
 }

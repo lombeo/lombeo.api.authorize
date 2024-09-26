@@ -19,10 +19,14 @@ namespace Lombeo.Api.Authorize.Infra
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<UserProfile> UserProfiles { get; set; }
         public virtual DbSet<LearningCourse> LearningCourses { get; set; }
-        public virtual DbSet<Doctor> Doctors { get; set; }
-        public virtual DbSet<Booking> Bookings { get; set; }
-        public virtual DbSet<Messenger> Messages { get; set; }
-
+        public virtual DbSet<CourseWeek> CourseWeeks { get; set; }
+        public virtual DbSet<CourseChapter> CourseChapters { get; set; }
+        public virtual DbSet<Reading> Readings { get; set; }
+        public virtual DbSet<Video> Videos { get; set; }
+        public virtual DbSet<Quiz> Quizzes { get; set; }
+        public virtual DbSet<Question> Questions { get; set; }
+        public virtual DbSet<Answer> Answers { get; set; }
+        public virtual DbSet<Score> Scores { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,9 +34,14 @@ namespace Lombeo.Api.Authorize.Infra
             UserAuthenConfiguration.Config(modelBuilder);
             UserProfileConfiguration.Config(modelBuilder);
             LearningCourseConfiguration.Config(modelBuilder);
-            DoctorConfiguration.Config(modelBuilder);
-            BookingConfiguration.Config(modelBuilder);
-            MessageConfiguration.Config(modelBuilder);
+            CourseWeekConfiguration.Config(modelBuilder);
+            CourseChapterConfiguration.Config(modelBuilder);
+            ReadingConfiguration.Config(modelBuilder);
+            VideoConfiguration.Config(modelBuilder);
+            QuizConfiguration.Config(modelBuilder);
+            QuestionConfiguration.Config(modelBuilder);
+            AnswerConfiguration.Config(modelBuilder);
+            ScoreConfiguration.Config(modelBuilder);
             //OnModelCreatingPartial(modelBuilder);
         }
 
