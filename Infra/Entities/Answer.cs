@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Lombeo.Api.Authorize.Infra.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lombeo.Api.Authorize.Infra.Entities
 {

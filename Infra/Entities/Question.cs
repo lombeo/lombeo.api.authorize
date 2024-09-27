@@ -8,7 +8,8 @@ namespace Lombeo.Api.Authorize.Infra.Entities
         public int Id { get; set; }
         public int QuizId { get; set; }
         public string Content { get; set; }
-        public ContentType Type { get; set; }
+        public QuizContentType Type { get; set; }
+        public EntryLevel EntryLevel { get; set; }
     }
 
     public static class QuestionConfiguration
@@ -29,8 +30,13 @@ namespace Lombeo.Api.Authorize.Infra.Entities
                 entity.Property(e => e.Content)
                     .IsRequired(); // Giới hạn độ dài nội dung câu hỏi là 500 ký tự
 
-                entity.Property(e => e.Type)
-                    .IsRequired(); // Bắt buộc xác định loại câu hỏi
+                entity.Property(c => c.Type)
+                   .HasConversion<int>() // Sử dụng kiểu int để lưu trữ enum
+                   .IsRequired();
+
+                entity.Property(c => c.EntryLevel)
+                   .HasConversion<int>() // Sử dụng kiểu int để lưu trữ enum
+                   .IsRequired();// Bắt buộc xác định loại câu hỏi
             });
         }
     }

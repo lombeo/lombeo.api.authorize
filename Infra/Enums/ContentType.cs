@@ -1,7 +1,9 @@
-﻿namespace Lombeo.Api.Authorize.Infra.Enums
+﻿using Lombeo.Api.Authorize.Infra.Entities;
+
+namespace Lombeo.Api.Authorize.Infra.Enums
 {
-	public enum ContentType
-	{
-		MultipleChoice, Pronounce
-	}
+    public enum ContentType
+    {
+        Reading, Quiz, Video
+    }
 }

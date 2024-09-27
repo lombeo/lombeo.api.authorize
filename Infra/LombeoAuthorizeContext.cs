@@ -21,12 +21,11 @@ namespace Lombeo.Api.Authorize.Infra
         public virtual DbSet<LearningCourse> LearningCourses { get; set; }
         public virtual DbSet<CourseWeek> CourseWeeks { get; set; }
         public virtual DbSet<CourseChapter> CourseChapters { get; set; }
-        public virtual DbSet<Reading> Readings { get; set; }
-        public virtual DbSet<Video> Videos { get; set; }
-        public virtual DbSet<Quiz> Quizzes { get; set; }
         public virtual DbSet<Question> Questions { get; set; }
         public virtual DbSet<Answer> Answers { get; set; }
         public virtual DbSet<Score> Scores { get; set; }
+        public virtual DbSet<Content> Contents { get; set; }
+        public virtual DbSet<UserCourses> UserCourses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,12 +35,10 @@ namespace Lombeo.Api.Authorize.Infra
             LearningCourseConfiguration.Config(modelBuilder);
             CourseWeekConfiguration.Config(modelBuilder);
             CourseChapterConfiguration.Config(modelBuilder);
-            ReadingConfiguration.Config(modelBuilder);
-            VideoConfiguration.Config(modelBuilder);
-            QuizConfiguration.Config(modelBuilder);
             QuestionConfiguration.Config(modelBuilder);
             AnswerConfiguration.Config(modelBuilder);
             ScoreConfiguration.Config(modelBuilder);
+            UserCoursesConfiguration.Config(modelBuilder);
             //OnModelCreatingPartial(modelBuilder);
         }
 
@@ -57,12 +54,16 @@ namespace Lombeo.Api.Authorize.Infra
         {
             foreach (var entry in ChangeTracker.Entries())
             {
-                if (entry.State == EntityState.Added)
+                if (entry != null && entry.Entity is CommonEntity commonEntity)
                 {
-                    ((CommonEntity)entry.Entity).CreatedAt = DateTime.UtcNow;
+                    if (entry.State == EntityState.Added)
+                    {
+                        ((CommonEntity)entry.Entity).CreatedAt = DateTime.UtcNow;
+                    }
+
+                    ((CommonEntity)entry.Entity).UpdatedAt = DateTime.UtcNow;
                 }
 
-                ((CommonEntity)entry.Entity).UpdatedAt = DateTime.UtcNow;
             }
         }
     }
