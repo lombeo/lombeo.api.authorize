@@ -72,6 +72,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 
         public async Task<LearningCourseDTO> GetCourseById(int courseId)
         {
+            _ = _cacheService.DeleteAsync(RedisCacheKey.LIST_COURSE);
             var data = await GetAllCourse();
             var course = data.FirstOrDefault(t => t.Id == courseId);
             double learningHour = 0;
