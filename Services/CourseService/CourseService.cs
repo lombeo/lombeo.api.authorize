@@ -40,11 +40,6 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 
         public async Task<bool> DeleteCourse(int courseId, int actionBy)
         {
-            if (!IsManager(actionBy))
-            {
-                throw new ApplicationException(Message.CommonMessage.NOT_ALLOWED);
-            }
-
             var course = await _context.LearningCourses.FirstOrDefaultAsync(t => t.Id == courseId);
             if (course == null)
             {
@@ -124,11 +119,6 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 
         public async Task<int> SaveCourse(SaveCourseDTO model)
         {
-            if (!IsManager(model.ActionBy))
-            {
-                throw new ApplicationException(Message.CommonMessage.NOT_ALLOWED);
-            }
-
             var entity = new LearningCourse()
             {
                 Id = 0,
