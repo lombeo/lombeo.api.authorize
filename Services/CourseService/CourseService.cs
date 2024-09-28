@@ -102,6 +102,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
                     CourseDescription = course.CourseDescription,
                     AuthorId = course.AuthorId,
                     Skills = course.Skills,
+                    CourseImage = course.CourseImage,
                     WhatYouWillLearn = course.WhatYouWillLearn,
                     HasCert = course.HasCert,
                     Price = course.Price,
@@ -244,6 +245,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
             {
                 entity.Id = existScore.Id;
                 entity.Point = model.Score;
+                entity.Time = model.Score;
 
                 _context.Update(entity);
             }

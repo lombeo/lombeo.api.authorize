@@ -8,6 +8,7 @@ namespace Lombeo.Api.Authorize.Infra.Entities
         public int Id { get; set; }
         public string CourseName { get; set; }
         public string CourseDescription { get; set; }
+        public string CourseImage { get; set; }
         public int AuthorId { get; set; }
         public string[] Skills {  get; set; }
 		public string[] WhatYouWillLearn {  get; set; }
@@ -32,6 +33,8 @@ namespace Lombeo.Api.Authorize.Infra.Entities
                     .HasMaxLength(255);
 
                 entity.Property(e => e.CourseDescription);
+
+                entity.Property(e => e.CourseImage);
 
                 entity.Property(e => e.AuthorId)
                     .IsRequired();

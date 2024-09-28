@@ -4,5 +4,6 @@
     {
         public int QuizId { get; set; }
         public int Score { get; set; }
+        public decimal Time { get; set; }
     }
 }

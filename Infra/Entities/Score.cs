@@ -8,6 +8,7 @@ namespace Lombeo.Api.Authorize.Infra.Entities
         public int UserId { get; set; }
         public int QuizId { get; set; }
         public int Point { get; set; }
+        public decimal Time { get; set; }
     }
 
     public static class ScoreConfiguration
@@ -26,6 +27,9 @@ namespace Lombeo.Api.Authorize.Infra.Entities
                     .IsRequired();
 
                 entity.Property(e => e.QuizId)
+                    .IsRequired();
+
+                entity.Property(e => e.Time)
                     .IsRequired();
 
                 entity.Property(e => e.Point)

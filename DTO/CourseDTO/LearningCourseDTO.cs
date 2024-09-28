@@ -13,5 +13,6 @@ namespace Lombeo.Api.Authorize.DTO.CourseDTO
         public decimal Price { get; set; }
         public double LearningHour { get; set; }
         public int LectureAmmount { get; set; }
+        public string CourseImage { get; set; }
     }
 }
