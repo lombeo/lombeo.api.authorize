@@ -26,6 +26,7 @@ namespace Lombeo.Api.Authorize.Infra
         public virtual DbSet<Score> Scores { get; set; }
         public virtual DbSet<Content> Contents { get; set; }
         public virtual DbSet<UserCourses> UserCourses { get; set; }
+        public virtual DbSet<Transaction> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +40,7 @@ namespace Lombeo.Api.Authorize.Infra
             AnswerConfiguration.Config(modelBuilder);
             ScoreConfiguration.Config(modelBuilder);
             UserCoursesConfiguration.Config(modelBuilder);
+            TransactionConfiguration.Config(modelBuilder);
             //OnModelCreatingPartial(modelBuilder);
         }
 

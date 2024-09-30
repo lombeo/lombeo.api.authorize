@@ -3,6 +3,7 @@ using System;
 using Lombeo.Api.Authorize.Infra;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Lombeo.Api.Authorize.Migrations
 {
     [DbContext(typeof(LombeoAuthorizeContext))]
-    partial class LombeoAuthorizeContextModelSnapshot : ModelSnapshot
+    [Migration("20240930194352_add-transaction")]
+    partial class addtransaction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -264,9 +267,6 @@ namespace Lombeo.Api.Authorize.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone");

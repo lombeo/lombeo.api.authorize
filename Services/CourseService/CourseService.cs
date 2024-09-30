@@ -25,6 +25,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
         Task<List<QuestionDTO>> GetQuestionForQuiz(int quizId);
         Task<bool> RegisterCourse(int courseId, int actionBy);
         Task<List<Content>> GetListContentsByChapId(int chapId);
+        Task<string> CreateTransaction(TransactionDTO model);
     }
 
     public class CourseService : ICourseService
@@ -307,6 +308,32 @@ namespace Lombeo.Api.Authorize.Services.CourseService
             }
             var content = _context.Contents.Where(t => t.ChapterId == chapId).ToList();
             return content;
+        }
+
+        public async Task<string> CreateTransaction(TransactionDTO model)
+        {
+            if(model.ActionBy == 0)
+            {
+                throw new ApplicationException(Message.CommonMessage.NOT_AUTHEN);
+            }
+
+            var course = await _context.LearningCourses.FirstOrDefaultAsync(t => t.Id == model.CourseId);
+            if (course == null)
+            {
+                throw new ApplicationException(Message.CommonMessage.NOT_FOUND);
+            }
+            var trans = new Transaction()
+            {
+                CourseId = course.Id,
+                CourseName = course.CourseName,
+                Price = course.Price,
+                UserId = model.ActionBy
+            };
+
+            await _context.AddAsync(trans);
+            await _context.SaveChangesAsync();
+
+            return $"https://img.vietqr.io/image/mbbank-529042003-compact2.jpg?amount={course.Price}&addInfo=Dekiru%20{course.Id}-{model.ActionBy}&accountName=DO%20DANG%20LONG";
         }
     }
 }

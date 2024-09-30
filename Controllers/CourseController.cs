@@ -91,10 +91,18 @@ namespace Lombeo.Api.Authorize.Controllers
         {
             return await HandleException(_courseService.RegisterCourse(courseId, UserId));
         }
+
         [HttpGet("get-list-content-by-chap-id")]
         public async Task<ResponseDTO<List<Content>>> GetListContentsByChapId([FromQuery] int chapId)
         {
             return await HandleException(_courseService.GetListContentsByChapId(chapId));
+        }
+
+        [HttpPost("create-and-get-qr-transaction")]
+        public async Task<ResponseDTO<string>> CreateTransaction([FromQuery] TransactionDTO model)
+        {
+            model.ActionBy = UserId;
+            return await HandleException(_courseService.CreateTransaction(model));
         }
     }
 }
