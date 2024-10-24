@@ -1,7 +1,7 @@
 ﻿using Lombeo.Api.Authorize.DTO;
 using Lombeo.Api.Authorize.Infra.Constants;
 using Lombeo.Api.Authorize.Infra.Enums;
-//using Lombeo.Api.Authorize.Services.AuthenService;
+using Lombeo.Api.Authorize.Services.AuthenService;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
@@ -76,12 +76,12 @@ namespace Lombeo.Api.Authorize.Services.CacheService
         private async Task UpdateCache(PubSubMessage msg)
         {
             //IDiscussionService _discussionService = _serviceProvider.GetService<IDiscussionService>();
-            //IAuthenService _authenService = _serviceProvider.GetService<IAuthenService>();
+            IAuthenService _authenService = _serviceProvider.GetService<IAuthenService>();
             //IHelpService _helpService = _serviceProvider.GetService<IHelpService>();
             switch (msg.PubSubEnum)
             {
                 case PubSubEnum.UpdateUserMemory:
-                    //_authenService.UpdateUserMemory(int.Parse(msg.Data.ToString()));
+                    _authenService.UpdateUserMemory(int.Parse(msg.Data.ToString()));
                     break;
                     //case PubSubEnum.UpdateBlogMemory:
                     //    _blogService.UpdateBlogMemory(int.Parse(msg.Data.ToString()));

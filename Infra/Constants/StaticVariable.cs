@@ -9,9 +9,6 @@ namespace Lombeo.Api.Authorize.Infra.Constants
         public static int TimeToday = 0;
         public static RedisConfigDTO RedisConfig = AppSettings.Get<RedisConfigDTO>("RedisConfiguration");
         public static JwtValidationDTO JwtValidation = AppSettings.Get<JwtValidationDTO>("JwtValidation");
-        
-        public static string UtilitiesApiUrl = AppSettings.Get<string>("ExternalSiteConfigs:Utilities:Url");
-        public static string UtilitiesApiToken = AppSettings.Get<string>("ExternalSiteConfigs:Utilities:Token");
 
         public static ScheduleDefaultDTO ScheduleDefault = AppSettings.Get<ScheduleDefaultDTO>("ScheduleDefault");
 
