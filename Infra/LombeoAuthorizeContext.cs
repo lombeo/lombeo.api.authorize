@@ -27,6 +27,10 @@ namespace Lombeo.Api.Authorize.Infra
         public virtual DbSet<Content> Contents { get; set; }
         public virtual DbSet<UserCourses> UserCourses { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
+        //public virtual DbSet<Course> Courses { get; set; }
+        //public virtual DbSet<Activity> Activities { get; set; }
+        //public virtual DbSet<Section> Sections { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,6 +45,10 @@ namespace Lombeo.Api.Authorize.Infra
             ScoreConfiguration.Config(modelBuilder);
             UserCoursesConfiguration.Config(modelBuilder);
             TransactionConfiguration.Config(modelBuilder);
+            CategoryConfiguration.Config(modelBuilder);
+            //CourseConfiguration.Config(modelBuilder);
+            //ActivityConfiguration.Config(modelBuilder);
+            //SectionConfiguration.Config(modelBuilder);
             //OnModelCreatingPartial(modelBuilder);
         }
 

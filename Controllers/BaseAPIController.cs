@@ -20,7 +20,7 @@ namespace Lombeo.Api.Authorize.Controllers
 			}
 		}
 
-		public async Task<ResponseDTO<T>> HandleException<T>(Task<T> task)
+        public async Task<ResponseDTO<T>> HandleException<T>(Task<T> task)
         {
             try
             {

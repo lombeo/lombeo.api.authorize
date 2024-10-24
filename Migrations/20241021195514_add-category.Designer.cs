@@ -5,6 +5,7 @@ using Lombeo.Api.Authorize.Infra;
 using Lombeo.Api.Authorize.Infra.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -13,9 +14,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Lombeo.Api.Authorize.Migrations
 {
     [DbContext(typeof(LombeoAuthorizeContext))]
-    partial class LombeoAuthorizeContextModelSnapshot : ModelSnapshot
+    [Migration("20241021195514_add-category")]
+    partial class addcategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -198,6 +201,13 @@ namespace Lombeo.Api.Authorize.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CourseDescription")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("CourseImage")
                         .IsRequired()
                         .HasColumnType("text");
@@ -213,21 +223,16 @@ namespace Lombeo.Api.Authorize.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("PercentOff")
+                    b.Property<int>("DiscountPercent")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("HasCert")
+                        .HasColumnType("boolean");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Skills")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SubDescription")
                         .IsRequired()
                         .HasColumnType("text");
 

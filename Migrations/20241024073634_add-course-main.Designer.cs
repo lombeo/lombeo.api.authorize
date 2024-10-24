@@ -5,6 +5,7 @@ using Lombeo.Api.Authorize.Infra;
 using Lombeo.Api.Authorize.Infra.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -13,9 +14,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Lombeo.Api.Authorize.Migrations
 {
     [DbContext(typeof(LombeoAuthorizeContext))]
-    partial class LombeoAuthorizeContextModelSnapshot : ModelSnapshot
+    [Migration("20241024073634_add-course-main")]
+    partial class addcoursemain
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,6 +26,48 @@ namespace Lombeo.Api.Authorize.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Lombeo.Api.Authorize.Infra.Entities.Activity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActivityStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ActivityTitle")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int>("ActivityType")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("AllowPreview")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Duration")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Major")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("SectionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SectionPriority")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Activities", (string)null);
+                });
 
             modelBuilder.Entity("Lombeo.Api.Authorize.Infra.Entities.Answer", b =>
                 {
@@ -137,6 +182,64 @@ namespace Lombeo.Api.Authorize.Migrations
                     b.ToTable("Contents", (string)null);
                 });
 
+            modelBuilder.Entity("Lombeo.Api.Authorize.Infra.Entities.Course", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActivityId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Introduction")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("NumberSection")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PercentOff")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string[]>("Skill")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<decimal>("StudyTime")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SubDescription")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string[]>("WhatWillYouLearn")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Courses", (string)null);
+                });
+
             modelBuilder.Entity("Lombeo.Api.Authorize.Infra.Entities.CourseChapter", b =>
                 {
                     b.Property<int>("Id")
@@ -198,6 +301,13 @@ namespace Lombeo.Api.Authorize.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CourseDescription")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("CourseImage")
                         .IsRequired()
                         .HasColumnType("text");
@@ -213,21 +323,16 @@ namespace Lombeo.Api.Authorize.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("PercentOff")
+                    b.Property<int>("DiscountPercent")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("HasCert")
+                        .HasColumnType("boolean");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Skills")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SubDescription")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -292,6 +397,31 @@ namespace Lombeo.Api.Authorize.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Scores", (string)null);
+                });
+
+            modelBuilder.Entity("Lombeo.Api.Authorize.Infra.Entities.Section", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<List<int>>("ActivitiesId")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("SectionName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int>("SectionStatus")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Sections", (string)null);
                 });
 
             modelBuilder.Entity("Lombeo.Api.Authorize.Infra.Entities.Transaction", b =>

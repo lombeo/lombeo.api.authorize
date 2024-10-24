@@ -1,10 +1,7 @@
-﻿using Lombeo.Api.Authorize.Infra.Enums;
-
-namespace Lombeo.Api.Authorize.DTO.CourseDTO
+﻿namespace Lombeo.Api.Authorize.DTO.CourseDTO
 {
-	public class SaveCourseDTO : BaseRequest
-	{
-        public int Id { get; set; }
+    public class CourseDTO
+    {
         public string CourseName { get; set; }
         public string SubDescription { get; set; }
         public string Description { get; set; }
@@ -13,5 +10,8 @@ namespace Lombeo.Api.Authorize.DTO.CourseDTO
         public string[] WhatYouWillLearn { get; set; }
         public decimal Price { get; set; }
         public int PercentOff { get; set; }
+        public int NumberContent { get; set; }
+        public double Duration { get; set; }
+        public List<ActivityDTO> Content { get; set; }
     }
 }

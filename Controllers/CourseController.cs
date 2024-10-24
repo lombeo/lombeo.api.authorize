@@ -22,7 +22,7 @@ namespace Lombeo.Api.Authorize.Controllers
 
 		[HttpGet("get-course-by-id")]
 		[AllowAnonymous]
-		public async Task<ResponseDTO<LearningCourseDTO>> GetCourseById([FromQuery] int courseId)
+		public async Task<ResponseDTO<CourseDTO>> GetCourseById([FromQuery] int courseId)
 		{
 			return await HandleException(_courseService.GetCourseById(courseId));
 		}
@@ -34,7 +34,14 @@ namespace Lombeo.Api.Authorize.Controllers
 			return await HandleException(_courseService.GetAllCourse());
 		}
 
-		[HttpPost("save-course")]
+        [HttpGet("test")]
+        [AllowAnonymous]
+        public async Task<int> Test()
+        {
+            return UserId;
+        }
+
+        [HttpPost("save-course")]
 		public async Task<ResponseDTO<int>> SaveCourse([FromBody] SaveCourseDTO model)
 		{
 			model.ActionBy = UserId;
@@ -104,5 +111,40 @@ namespace Lombeo.Api.Authorize.Controllers
             model.ActionBy = UserId;
             return await HandleException(_courseService.CreateTransaction(model));
         }
+
+        [AllowAnonymous]
+        [HttpPost("save-category")]
+        public async Task<ResponseDTO<Category>> SaveCategory([FromBody] SaveCategoryDTO model)
+        {
+            return await HandleException(_courseService.SaveCategory(model));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("get-category")]
+        public async Task<ResponseDTO<List<Category>>> GetAllCategory()
+        {
+            return await HandleException(_courseService.GetAllCategory());
+        }
+
+        //[AllowAnonymous]
+        //[HttpPost("create-course")]
+        //public async Task<ResponseDTO<Course>> CreateCourse(CreateCourseDto model)
+        //{
+        //    return await HandleException(_courseService.CreateCourse(model));
+        //}
+
+        //[AllowAnonymous]
+        //[HttpPost("create-activity")]
+        //public async Task<ResponseDTO<Activity>> CreateActivity(CreateActivityDto model)
+        //{
+        //    return await HandleException(_courseService.CreateActivity(model));
+        //}
+
+        //[AllowAnonymous]
+        //[HttpPost("create-section")]
+        //public async Task<ResponseDTO<Section>> CreateSection(CreateSectionDto model)
+        //{
+        //    return await HandleException(_courseService.CreateSection(model));
+        //}
     }
 }

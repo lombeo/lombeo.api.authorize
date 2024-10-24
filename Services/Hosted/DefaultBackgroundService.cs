@@ -1,5 +1,5 @@
 ﻿using Lombeo.Api.Authorize.Infra.Constants;
-using Lombeo.Api.Authorize.Services.AuthenService;
+//using Lombeo.Api.Authorize.Services.AuthenService;
 using System.ComponentModel.Design;
 
 namespace Lombeo.Api.Authorize.Services.Hosted
@@ -30,7 +30,7 @@ namespace Lombeo.Api.Authorize.Services.Hosted
                     try
                     {
                         StaticVariable.IsInitializedUser = false;
-                        scope.ServiceProvider.GetService<IAuthenService>()?.InitUserMemory();
+                        //scope.ServiceProvider.GetService<IAuthenService>()?.InitUserMemory();
 
                         StaticVariable.TimeToday = timeToday;
                     }

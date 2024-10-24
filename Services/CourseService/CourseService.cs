@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.InkML;
-using DocumentFormat.OpenXml.Wordprocessing;
-using Lombeo.Api.Authorize.DTO.CourseDTO;
+﻿using Lombeo.Api.Authorize.DTO.CourseDTO;
 using Lombeo.Api.Authorize.Infra;
 using Lombeo.Api.Authorize.Infra.Constants;
 using Lombeo.Api.Authorize.Infra.Entities;
@@ -11,7 +9,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 {
     public interface ICourseService
     {
-        Task<LearningCourseDTO> GetCourseById(int courseId);
+        Task<CourseDTO> GetCourseById(int courseId);
         Task<List<LearningCourse>> GetAllCourse();
         Task<int> SaveCourse(SaveCourseDTO model);
         Task<bool> DeleteCourse(int courseId, int actionBy);
@@ -26,6 +24,12 @@ namespace Lombeo.Api.Authorize.Services.CourseService
         Task<bool> RegisterCourse(int courseId, int actionBy);
         Task<List<Content>> GetListContentsByChapId(int chapId);
         Task<string> CreateTransaction(TransactionDTO model);
+        Task<Category> SaveCategory(SaveCategoryDTO model);
+        Task<List<Category>> GetAllCategory();
+        //Task<Course> CreateCourse(CreateCourseDto dto);
+        //Task<Activity> CreateActivity(CreateActivityDto dto);
+        //Task<Section> CreateSection(CreateSectionDto dto);
+        Task<List<LearningCourse>> GetHomeCourse(int userId);
     }
 
     public class CourseService : ICourseService
@@ -59,25 +63,14 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 
         public async Task<List<LearningCourse>> GetAllCourse()
         {
-            string cacheKey = RedisCacheKey.LIST_COURSE;
-            var data = await _cacheService.GetAsync<List<LearningCourse>>(cacheKey);
-
-            if (data == null)
-            {
-                data = await _context.LearningCourses.Where(t => !t.Deleted).ToListAsync();
-                _ = _cacheService.SetAsync(cacheKey, data);
-            }
-
-            return data;
+            return await _context.LearningCourses.Where(t => !t.Deleted).ToListAsync();
         }
 
-        public async Task<LearningCourseDTO> GetCourseById(int courseId)
+        public async Task<CourseDTO> GetCourseById(int courseId)
         {
-            _ = _cacheService.DeleteAsync(RedisCacheKey.LIST_COURSE);
-            var data = await GetAllCourse();
+            var data = await _context.LearningCourses.Where(t => !t.Deleted).ToListAsync();
             var course = data.FirstOrDefault(t => t.Id == courseId);
-            double learningHour = 0;
-            int lectureAmmount = 0;
+            List<ActivityDTO> contentData = new List<ActivityDTO>();
 
             if (course != null)
             {
@@ -93,21 +86,39 @@ namespace Lombeo.Api.Authorize.Services.CourseService
                                  where w.CourseId == courseId
                                  select c).Sum(t => t.Duration);
 
-                var result = new LearningCourseDTO()
+                List<CourseWeek> courseWeek = await _context.CourseWeeks.Where(t => t.CourseId == course.Id).ToListAsync();
+
+                foreach (var week in courseWeek)
+                {
+                    List<CourseChapter> chapters = await _context.CourseChapters.Where(t => t.WeekId == week.Id).ToListAsync();
+                    List<Content> contents = new List<Content>();
+                    foreach (var chapter in chapters)
+                    {
+                        contents = await _context.Contents.Where(t => t.ChapterId == chapter.Id).ToListAsync();
+                        
+                    }
+
+                    contentData.Add(new ActivityDTO
+                    {
+                        Week = week,
+                        Chapters = chapters,
+                        Activities = contents
+                    });
+                }
+
+                var result = new CourseDTO()
                 {
                     CourseName = course.CourseName,
-                    CourseDescription = course.CourseDescription,
-                    AuthorId = course.AuthorId,
+                    SubDescription = course.SubDescription,
+                    Description = course.Description,
                     Skills = course.Skills,
                     CourseImage = course.CourseImage,
                     WhatYouWillLearn = course.WhatYouWillLearn,
-                    HasCert = course.HasCert,
                     Price = course.Price,
-                    LearningHour = totalHour,
-                    LectureAmmount = totalContents,
-                    UpdatedAt = course.UpdatedAt,
-                    CreatedAt = course.CreatedAt,
-                    Deleted = course.Deleted
+                    Duration = totalHour,
+                    NumberContent = totalContents,
+                    PercentOff = course.PercentOff,
+                    Content = contentData
                 };
 
                 return result;
@@ -125,7 +136,6 @@ namespace Lombeo.Api.Authorize.Services.CourseService
             {
                 Id = 0,
                 UpdatedAt = DateTime.UtcNow,
-                AuthorId = model.ActionBy,
                 Deleted = false,
             };
 
@@ -137,22 +147,16 @@ namespace Lombeo.Api.Authorize.Services.CourseService
                 {
                     throw new ApplicationException(Message.CommonMessage.NOT_FOUND);
                 }
-
-                if (entity.AuthorId != model.ActionBy)
-                {
-                    if (!IsManager(model.ActionBy))
-                    {
-                        throw new ApplicationException(Message.CommonMessage.NOT_ALLOWED);
-                    }
-                }
             }
 
             entity.CourseName = model.CourseName;
-            entity.CourseDescription = model.CourseDescription;
-            entity.Price = model.Price;
-            entity.HasCert = model.HasCert;
+            entity.SubDescription = model.SubDescription;
+            entity.Description = model.Description;
+            entity.CourseImage = model.CourseImage;
             entity.Skills = model.Skills;
             entity.WhatYouWillLearn = model.WhatYouWillLearn;
+            entity.Price = model.Price;
+            entity.PercentOff = model.PercentOff;
 
             if (model.Id != 0)
             {
@@ -312,7 +316,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 
         public async Task<string> CreateTransaction(TransactionDTO model)
         {
-            if(model.ActionBy == 0)
+            if (model.ActionBy == 0)
             {
                 throw new ApplicationException(Message.CommonMessage.NOT_AUTHEN);
             }
@@ -333,7 +337,97 @@ namespace Lombeo.Api.Authorize.Services.CourseService
             await _context.AddAsync(trans);
             await _context.SaveChangesAsync();
 
-            return $"https://img.vietqr.io/image/mbbank-529042003-compact2.jpg?amount={course.Price}&addInfo=Dekiru%20{course.Id}-{model.ActionBy}&accountName=DO%20DANG%20LONG";
+            return $"https://img.vietqr.io/image/mbbank-529042003-compact2.jpg?amount={course.Price}&addInfo=Dekiru%20{course.Id}%20{model.ActionBy}&accountName=DO%20DANG%20LONG";
         }
+
+        public async Task<Category> SaveCategory(SaveCategoryDTO model)
+        {
+            var entity = new Category()
+            {
+                Name = model.Name,
+                Description = model.Description,
+                Priority = model.Priority,
+                ModifiedOn = model.ModifiedOn,
+                MultiLangData = model.MultiLangData,
+                ParentId = model.ParentId,
+                CountCourse = model.CountCourse,
+                Deleted = model.Deleted,
+                CreatedOn = model.CreatedOn,
+            };
+
+            await _context.AddAsync(entity);
+            await _context.SaveChangesAsync();
+
+            return entity;
+        }
+
+        public async Task<List<Category>> GetAllCategory()
+        {
+            return await _context.Categories.ToListAsync();
+        }
+
+        public Task<List<LearningCourse>> GetHomeCourse(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        //public async Task<Course> CreateCourse(CreateCourseDto dto)
+        //{
+        //    var course = new Course
+        //    {
+        //        Title = dto.Title,
+        //        ImageUrl = dto.ImageUrl,
+        //        SubDescription = dto.SubDescription,
+        //        Price = dto.Price,
+        //        PercentOff = dto.PercentOff,
+        //        StudyTime = dto.StudyTime,
+        //        NumberSection = dto.NumberSection,
+        //        Introduction = dto.Introduction,
+        //        WhatWillYouLearn = dto.WhatWillYouLearn,
+        //        Skill = dto.Skill,
+        //        ActivityId = dto.ActivityId
+        //    };
+
+        //    await _context.AddAsync(course);
+        //    await _context.SaveChangesAsync();
+
+        //    return course;
+        //}
+
+        //public async Task<Activity> CreateActivity(CreateActivityDto dto)
+        //{
+        //    var activity = new Activity
+        //    {
+        //        ActivityTitle = dto.ActivityTitle,
+        //        Duration = dto.Duration,
+        //        Priority = dto.Priority,
+        //        SectionPriority = dto.SectionPriority,
+        //        ActivityType = dto.ActivityType,
+        //        ActivityStatus = dto.ActivityStatus,
+        //        Major = dto.Major,
+        //        AllowPreview = dto.AllowPreview,
+        //        SectionId = dto.SectionId
+        //    };
+
+        //    await _context.AddAsync(activity);
+        //    await _context.SaveChangesAsync();
+
+        //    return activity;
+        //}
+
+        //public async Task<Section> CreateSection(CreateSectionDto dto)
+        //{
+        //    var section = new Section
+        //    {
+        //        SectionName = dto.SectionName,
+        //        SectionStatus = dto.SectionStatus,
+        //        ActivitiesId = dto.ActivitiesId
+        //    };
+
+        //    await _context.AddAsync(section);
+        //    await _context.SaveChangesAsync();
+
+        //    return section;
+        //}
     }
 }
