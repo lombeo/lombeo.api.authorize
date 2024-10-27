@@ -27,5 +27,11 @@
             public const string INVALID_LOGIN = "Tài khoản hoặc mật khẩu không đúng!"; //Invalid username or password.
             public const string INVALID_USER = "You need to update your profile!";
         }
+
+        public static class CourseMessage
+        {
+            public const string NOT_REGISTERED = "Bạn chưa đăng ký khóa học này!";
+            public const string ALREADY_REVIEW = "Bạn đã đánh giá khóa học này rồi!";
+        }
     }
 }

@@ -28,6 +28,8 @@ namespace Lombeo.Api.Authorize.Infra
         public virtual DbSet<UserCourses> UserCourses { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<Review> Reviews { get; set; }
+        public virtual DbSet<EnrollCourse> EnrollCourses { get; set; }
         //public virtual DbSet<Course> Courses { get; set; }
         //public virtual DbSet<Activity> Activities { get; set; }
         //public virtual DbSet<Section> Sections { get; set; }
@@ -46,6 +48,7 @@ namespace Lombeo.Api.Authorize.Infra
             UserCoursesConfiguration.Config(modelBuilder);
             TransactionConfiguration.Config(modelBuilder);
             CategoryConfiguration.Config(modelBuilder);
+            ReviewConfiguration.Config(modelBuilder);
             //CourseConfiguration.Config(modelBuilder);
             //ActivityConfiguration.Config(modelBuilder);
             //SectionConfiguration.Config(modelBuilder);

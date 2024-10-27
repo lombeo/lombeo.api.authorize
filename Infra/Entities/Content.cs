@@ -40,7 +40,6 @@ namespace Lombeo.Api.Authorize.Infra.Entities
 
             // VideoUrl có thể null
             builder.Property(c => c.VideoUrl)
-                   .HasMaxLength(500)
                    .IsRequired(false);
 
             builder.Property(c => c.Point);

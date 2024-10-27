@@ -4,6 +4,6 @@ namespace Lombeo.Api.Authorize.Infra.Enums
 {
     public enum ContentType
     {
-        Reading, Quiz, Video
+        Reading, Quiz, Video, Listening, Speaking, Writing
     }
 }

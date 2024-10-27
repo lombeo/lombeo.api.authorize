@@ -103,6 +103,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 		public async Task<ReturnSignInDTO> SignIn(SignInDTO model)
 		{
 			var user = await IsValidLogin(model);
+			var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(t =>  t.UserId == user.Id);
 			if (user != null)
 			{
 				// Tạo các claim chứa thông tin của người dùng
@@ -139,7 +140,8 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 				return new ReturnSignInDTO()
 				{
                     Token = tokenString,
-					Username = user.Username,
+					UserName = user.Username,
+					User = userProfile,
 					Email = user.Email,
 					Role = user.Role
                 };

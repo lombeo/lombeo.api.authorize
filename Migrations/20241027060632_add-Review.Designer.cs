@@ -5,6 +5,7 @@ using Lombeo.Api.Authorize.Infra;
 using Lombeo.Api.Authorize.Infra.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -13,9 +14,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Lombeo.Api.Authorize.Migrations
 {
     [DbContext(typeof(LombeoAuthorizeContext))]
-    partial class LombeoAuthorizeContextModelSnapshot : ModelSnapshot
+    [Migration("20241027060632_add-Review")]
+    partial class addReview
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

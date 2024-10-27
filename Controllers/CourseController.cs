@@ -1,5 +1,6 @@
 ﻿using Lombeo.Api.Authorize.DTO.Common;
 using Lombeo.Api.Authorize.DTO.CourseDTO;
+using Lombeo.Api.Authorize.DTO.MainCourseDTO;
 using Lombeo.Api.Authorize.Infra.Constants;
 using Lombeo.Api.Authorize.Infra.Entities;
 using Lombeo.Api.Authorize.Services.CourseService;
@@ -22,14 +23,14 @@ namespace Lombeo.Api.Authorize.Controllers
 
 		[HttpGet("get-course-by-id")]
 		[AllowAnonymous]
-		public async Task<ResponseDTO<CourseDTO>> GetCourseById([FromQuery] int courseId)
+		public async Task<ResponseDTO<CourseDetailDTO>> GetCourseById([FromQuery] int courseId)
 		{
 			return await HandleException(_courseService.GetCourseById(courseId));
 		}
 
 		[HttpGet("get-all-course")]
 		[AllowAnonymous]
-		public async Task<ResponseDTO<List<LearningCourse>>> GetAllCourse()
+		public async Task<ResponseDTO<List<AllCourseDTO>>> GetAllCourse()
 		{
 			return await HandleException(_courseService.GetAllCourse());
 		}

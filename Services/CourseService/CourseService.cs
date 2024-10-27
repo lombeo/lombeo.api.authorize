@@ -1,4 +1,5 @@
 ﻿using Lombeo.Api.Authorize.DTO.CourseDTO;
+using Lombeo.Api.Authorize.DTO.MainCourseDTO;
 using Lombeo.Api.Authorize.Infra;
 using Lombeo.Api.Authorize.Infra.Constants;
 using Lombeo.Api.Authorize.Infra.Entities;
@@ -9,8 +10,8 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 {
     public interface ICourseService
     {
-        Task<CourseDTO> GetCourseById(int courseId);
-        Task<List<LearningCourse>> GetAllCourse();
+        Task<CourseDetailDTO> GetCourseById(int courseId);
+        Task<List<AllCourseDTO>> GetAllCourse();
         Task<int> SaveCourse(SaveCourseDTO model);
         Task<bool> DeleteCourse(int courseId, int actionBy);
         Task<List<CourseWeek>> GetAllCourseWeeksById(int id, int actionBy);
@@ -29,7 +30,9 @@ namespace Lombeo.Api.Authorize.Services.CourseService
         //Task<Course> CreateCourse(CreateCourseDto dto);
         //Task<Activity> CreateActivity(CreateActivityDto dto);
         //Task<Section> CreateSection(CreateSectionDto dto);
-        Task<List<LearningCourse>> GetHomeCourse(int userId);
+        Task<bool> ReviewCourse(Review model);
+        Task<bool> ManageEnrollCourse(EnrollCourseDTO model);
+        Task<bool> RequestEnrollCourse(RequestEnrollDTO model);
     }
 
     public class CourseService : ICourseService
@@ -61,74 +64,126 @@ namespace Lombeo.Api.Authorize.Services.CourseService
             return true;
         }
 
-        public async Task<List<LearningCourse>> GetAllCourse()
+        public async Task<List<AllCourseDTO>> GetAllCourse()
         {
-            return await _context.LearningCourses.Where(t => !t.Deleted).ToListAsync();
+            var courses = await _context.LearningCourses
+                .Where(t => !t.Deleted)
+                .Select(c => new AllCourseDTO
+                {
+                    Id = c.Id,
+                    Title = c.CourseName,
+                    Description = c.SubDescription, // Assuming SubDescription is a short description
+                    Image = c.CourseImage,
+                    RegularPrice = (c.Price * (decimal)(1 + (c.PercentOff / 100.0))),
+                    DiscountedPrice = c.Price,
+
+                    // Assuming default values for fields not in LearningCourse
+                    Rating = _context.Reviews.Where(t => t.CourseId == c.Id).Sum(t => t.Rating) / ((_context.Reviews.Where(t => t.CourseId == c.Id).Count() == 0) ? 1 : (_context.Reviews.Where(t => t.CourseId == c.Id).Count())), // Example placeholder value; replace with actual calculation if available
+                    Students = _context.EnrollCourses.Where(t => t.CourseId == c.Id).Count(), // Example placeholder value; replace with actual calculation if available
+                    Lectures = (from d in _context.Contents
+                                join ch in _context.CourseChapters on d.ChapterId equals ch.Id
+                                join w in _context.CourseWeeks on ch.WeekId equals w.Id
+                                where w.CourseId == c.Id
+                                select d).Count(),  // Example placeholder value; replace with actual calculation if available
+                    Hours = (from d in _context.Contents
+                             join ch in _context.CourseChapters on d.ChapterId equals ch.Id
+                             join w in _context.CourseWeeks on ch.WeekId equals w.Id
+                             where w.CourseId == c.Id
+                             select d).Sum(t => t.Duration)   // Example placeholder value; replace with actual calculation if available
+                })
+                .ToListAsync();
+
+            return courses;
         }
 
-        public async Task<CourseDTO> GetCourseById(int courseId)
+        public async Task<CourseDetailDTO> GetCourseById(int courseId)
         {
             var data = await _context.LearningCourses.Where(t => !t.Deleted).ToListAsync();
             var course = data.FirstOrDefault(t => t.Id == courseId);
-            List<ActivityDTO> contentData = new List<ActivityDTO>();
 
             if (course != null)
             {
-                var totalContents = (from c in _context.Contents
-                                     join ch in _context.CourseChapters on c.ChapterId equals ch.Id
-                                     join w in _context.CourseWeeks on ch.WeekId equals w.Id
-                                     where w.CourseId == courseId
-                                     select c).Count();
+                // Fetch total content count and duration
+                var totalContents = await (from content in _context.Contents
+                                           join chapter in _context.CourseChapters on content.ChapterId equals chapter.Id
+                                           join week in _context.CourseWeeks on chapter.WeekId equals week.Id
+                                           where week.CourseId == courseId
+                                           select content).CountAsync();
 
-                var totalHour = (from c in _context.Contents
-                                 join ch in _context.CourseChapters on c.ChapterId equals ch.Id
-                                 join w in _context.CourseWeeks on ch.WeekId equals w.Id
-                                 where w.CourseId == courseId
-                                 select c).Sum(t => t.Duration);
+                var totalHour = await (from c in _context.Contents
+                                       join ch in _context.CourseChapters on c.ChapterId equals ch.Id
+                                       join w in _context.CourseWeeks on ch.WeekId equals w.Id
+                                       where w.CourseId == courseId
+                                       select c).SumAsync(t => t.Duration);
 
-                List<CourseWeek> courseWeek = await _context.CourseWeeks.Where(t => t.CourseId == course.Id).ToListAsync();
+                // Get course weeks and build the curriculum
+                List<MainWeekDTO> curriculum = new List<MainWeekDTO>();
+                var courseWeeks = await _context.CourseWeeks.Where(t => t.CourseId == course.Id).ToListAsync();
 
-                foreach (var week in courseWeek)
+                foreach (var week in courseWeeks)
                 {
-                    List<CourseChapter> chapters = await _context.CourseChapters.Where(t => t.WeekId == week.Id).ToListAsync();
-                    List<Content> contents = new List<Content>();
+                    var chapters = await _context.CourseChapters.Where(t => t.WeekId == week.Id).ToListAsync();
+                    var mainChapters = new List<MainChapterDTO>();
+
                     foreach (var chapter in chapters)
                     {
-                        contents = await _context.Contents.Where(t => t.ChapterId == chapter.Id).ToListAsync();
-                        
+                        var lectures = await _context.Contents.Where(t => t.ChapterId == chapter.Id).ToListAsync();
+                        var mainContents = lectures.Select(content => new MainContentDTO
+                        {
+                            Type = content.ContentType,
+                            Title = content.Title,
+                            Duration = content.Duration
+                        }).ToList();
+
+                        mainChapters.Add(new MainChapterDTO
+                        {
+                            Title = chapter.Title,
+                            Lectures = mainContents
+                        });
                     }
 
-                    contentData.Add(new ActivityDTO
+                    curriculum.Add(new MainWeekDTO
                     {
-                        Week = week,
-                        Chapters = chapters,
-                        Activities = contents
+                        Week = week.Index,
+                        Title = week.Title,
+                        Chapters = mainChapters
                     });
                 }
 
-                var result = new CourseDTO()
+                var Reviews = _context.Reviews.Where(t => t.CourseId != course.Id).Select(t => new MainReviewDTO
                 {
-                    CourseName = course.CourseName,
-                    SubDescription = course.SubDescription,
-                    Description = course.Description,
-                    Skills = course.Skills,
-                    CourseImage = course.CourseImage,
-                    WhatYouWillLearn = course.WhatYouWillLearn,
-                    Price = course.Price,
+                    User = _context.UserProfiles.FirstOrDefault(c => c.UserId == t.ReviewerId).FullName,
+                    Rating = t.Rating,
+                    Comment = t.Description
+                }).ToList();
+
+                // Build CourseDetailDTO with collected data
+                var result = new CourseDetailDTO
+                {
+                    Id = course.Id,
+                    Title = course.CourseName,
+                    Image = course.CourseImage,
+                    Description = course.SubDescription,
+                    RegularPrice = (course.Price * (decimal)(1 + (course.PercentOff / 100.0))),
+                    DiscountedPrice = course.Price,
+                    DiscountPercentage = course.PercentOff,
                     Duration = totalHour,
-                    NumberContent = totalContents,
-                    PercentOff = course.PercentOff,
-                    Content = contentData
+                    Lectures = totalContents,
+                    Students = _context.EnrollCourses.Where(t => t.CourseId == course.Id).Count(),
+                    Rating = _context.Reviews.Where(t => t.CourseId == course.Id).Sum(t => t.Rating) / ((_context.Reviews.Where(t => t.CourseId == course.Id).Count() == 0) ? 1 : (_context.Reviews.Where(t => t.CourseId == course.Id).Count())),
+                    Introduction = course.Description,
+                    LearningObjectives = course.WhatYouWillLearn,
+                    Skill = course.Skills,
+                    Curriculum = curriculum,
+                    Reviews = Reviews // Assuming you have a method to populate MainReviewDTO
                 };
 
                 return result;
-
             }
-
-
 
             throw new ApplicationException(Message.CommonMessage.NOT_FOUND);
         }
+
 
         public async Task<int> SaveCourse(SaveCourseDTO model)
         {
@@ -366,7 +421,65 @@ namespace Lombeo.Api.Authorize.Services.CourseService
             return await _context.Categories.ToListAsync();
         }
 
-        public Task<List<LearningCourse>> GetHomeCourse(int userId)
+        public async Task<bool> ReviewCourse(Review model)
+        {
+            var flag = await CheckRegisteredCourse(model.CourseId, model.ReviewerId);
+            if (flag == false)
+            {
+                throw new ApplicationException(Message.CourseMessage.NOT_REGISTERED);
+            }
+            var exist = await _context.Reviews.FirstOrDefaultAsync(t => t.CourseId == model.CourseId && t.ReviewerId == model.ReviewerId && t.Id != model.Id);
+            if (exist == null)
+            {
+                throw new ApplicationException(Message.CourseMessage.ALREADY_REVIEW);
+            }
+
+            var review = new Review()
+            {
+                Id = 0,
+                CourseId = model.CourseId,
+                ReviewerId = model.ReviewerId,
+                Description = model.Description,
+                Rating = model.Rating
+            };
+
+            var edit = await _context.Reviews.FirstOrDefaultAsync(t => t.Id == model.Id);
+
+            if (edit == null)
+            {
+                await _context.AddAsync(review);
+            }
+            else
+            {
+                review.Id = edit.Id;
+                _context.Update(review);
+            }
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> ManageEnrollCourse(EnrollCourseDTO model)
+        {
+            if (!IsManager(model.ActionBy))
+            {
+                throw new ApplicationException(Message.CommonMessage.NOT_ALLOWED);
+            }
+
+            var enroll = await _context.EnrollCourses.FirstOrDefaultAsync(t => t.Id == model.EnrollId);
+
+            if (enroll == null)
+            {
+                throw new ApplicationException(Message.CommonMessage.NOT_FOUND);
+            }
+
+            enroll.UpdatedAt = DateTime.UtcNow;
+            enroll.Status = model.Status;
+
+            return true;
+        }
+
+        public Task<bool> RequestEnrollCourse(RequestEnrollDTO model)
         {
             throw new NotImplementedException();
         }
