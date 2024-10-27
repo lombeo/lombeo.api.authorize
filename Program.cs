@@ -12,23 +12,29 @@ namespace Lombeo.Api.Authorize
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             //AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 
+            // Load environment variables from .env
+            DotNetEnv.Env.Load();
+
             var builder = WebApplication.CreateBuilder(args);
             // Add services to the container.
             builder.ConfigureServices();
 
             var app = builder.Build().ConfigurePipeline();
 
-            var scope = app.Services.GetService<IServiceScopeFactory>().CreateScope();
-            scope.ServiceProvider.GetService<IPubSubService>().SubscribeInternal();
+            using (var scope = app.Services.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                // Initialize services within the scope
+                scope.ServiceProvider.GetService<IPubSubService>()?.SubscribeInternal();
+                scope.ServiceProvider.GetService<IAuthenService>()?.InitUserMemory();
+            }
 
+            // Setting the static variable
             var utcNow = DateTime.UtcNow;
             int timeToday = utcNow.Year + utcNow.Month + utcNow.Day;
             StaticVariable.TimeToday = timeToday;
-            DotNetEnv.Env.Load();
-            //scope.ServiceProvider.GetService<IDiscussionService>()?.InitDiscussionMemory();
-            scope.ServiceProvider.GetService<IAuthenService>()?.InitUserMemory();
-            //scope.ServiceProvider.GetService<IHelpService>()?.InitHelpMemory();
+
             app.Run();
         }
     }
+
 }

@@ -99,6 +99,7 @@ namespace Lombeo.Api.Authorize
                        ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
             builder.Services.AddDbContext<LombeoAuthorizeContext>(options => options.UseNpgsql(connectionString));
+
             builder.Services.AddScoped<LombeoAuthorizeContext>();
         }
 
