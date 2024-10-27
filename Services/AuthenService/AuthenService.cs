@@ -183,7 +183,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 		{
 			ValidateSignUp(model);
 
-			var password = HashPassword(model.PasswordHash);
+			var password = HashPassword(model.Password);
 
 			var account = new User
 			{
