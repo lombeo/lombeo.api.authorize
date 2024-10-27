@@ -2,6 +2,7 @@
 using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using Lombeo.Api.Authorize.Infra.Constants;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Api_Project_Prn.Services.GoogleDriveService
@@ -23,11 +24,13 @@ namespace Api_Project_Prn.Services.GoogleDriveService
         public GoogleDriveService()
         {
             GoogleCredential credential;
-            using (var stream = new FileStream(StaticVariable.GoogleDriveCredentials, FileMode.Open, FileAccess.Read))
+            var jsonCredentials = Environment.GetEnvironmentVariable("GOOGLE_DRIVE_CREDENTIALS_JSON");
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonCredentials)))
             {
                 credential = GoogleCredential.FromStream(stream)
                     .CreateScoped(DriveService.ScopeConstants.Drive);
             }
+
 
             _service = new DriveService(new BaseClientService.Initializer()
             {
