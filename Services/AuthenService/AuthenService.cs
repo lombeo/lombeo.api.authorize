@@ -243,7 +243,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 				throw new ApplicationException(Message.AuthenMessage.INVALID_EMAIL);
 			}
 
-			if (!Regex.IsMatch(model.PasswordHash, PatternConst.PASSWORD_PATTERN))
+			if (!Regex.IsMatch(model.Password, PatternConst.PASSWORD_PATTERN))
 			{
 				throw new ApplicationException(Message.AuthenMessage.INVALID_PASSWORD);
 			}
