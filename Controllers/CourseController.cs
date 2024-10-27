@@ -127,6 +127,13 @@ namespace Lombeo.Api.Authorize.Controllers
             return await HandleException(_courseService.GetAllCategory());
         }
 
+        [HttpPost("request-enroll-course")]
+        public async Task<ResponseDTO<bool>> RequestEnrollCourse([FromQuery] RequestEnrollDTO model)
+        {
+            model.ActionBy = UserId;
+            return await HandleException(_courseService.RequestEnrollCourse(model));
+        }
+
         //[AllowAnonymous]
         //[HttpPost("create-course")]
         //public async Task<ResponseDTO<Course>> CreateCourse(CreateCourseDto model)

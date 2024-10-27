@@ -1,4 +1,5 @@
-﻿using Lombeo.Api.Authorize.DTO.Configuration;
+﻿using Api_Project_Prn.Services.GoogleDriveService;
+using Lombeo.Api.Authorize.DTO.Configuration;
 using Lombeo.Api.Authorize.Infra;
 using Lombeo.Api.Authorize.Infra.Constants;
 using Lombeo.Api.Authorize.Services.AuthenService;
@@ -45,6 +46,7 @@ namespace Lombeo.Api.Authorize
             builder.Services.AddScoped<IPubSubService, PubSubService>();
             builder.Services.AddScoped<IAuthenService, AuthenService>();
             builder.Services.AddScoped<ICourseService, CourseService>();
+            builder.Services.AddScoped<IGoogleDriveService, GoogleDriveService>();
             builder.Services.AddScoped<RedisConnManager>();
             builder.Services.AddHostedService<DefaultBackgroundService>();
 
@@ -93,7 +95,10 @@ namespace Lombeo.Api.Authorize
                 };
             });
 
-            builder.Services.AddDbContext<LombeoAuthorizeContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            var connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
+                       ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+            builder.Services.AddDbContext<LombeoAuthorizeContext>(options => options.UseNpgsql(connectionString));
             builder.Services.AddScoped<LombeoAuthorizeContext>();
         }
 

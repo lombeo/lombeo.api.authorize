@@ -14,5 +14,9 @@ namespace Lombeo.Api.Authorize.Infra.Constants
 
         public static bool IsInitializedUser = false;
         public static IEnumerable<User> UserMemory = new List<User>();
+
+        public static string GoogleDriveCredentials = Environment.GetEnvironmentVariable("GOOGLE_DRIVE_CREDENTIALS_JSON");
+        public static string GoogleClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
+        public static string GoogleClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET");
     }
 }

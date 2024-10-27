@@ -24,7 +24,7 @@ namespace Lombeo.Api.Authorize
             var utcNow = DateTime.UtcNow;
             int timeToday = utcNow.Year + utcNow.Month + utcNow.Day;
             StaticVariable.TimeToday = timeToday;
-
+            DotNetEnv.Env.Load();
             //scope.ServiceProvider.GetService<IDiscussionService>()?.InitDiscussionMemory();
             scope.ServiceProvider.GetService<IAuthenService>()?.InitUserMemory();
             //scope.ServiceProvider.GetService<IHelpService>()?.InitHelpMemory();

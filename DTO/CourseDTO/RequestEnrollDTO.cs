@@ -4,6 +4,6 @@
     {
         public int CourseId { get; set; }
         public string InvoiceCode { get; set; }
-        public string TransactionImgUrl { get; set; }
+        public IFormFile Image { get; set; }
     }
 }

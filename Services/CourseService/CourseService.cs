@@ -1,10 +1,16 @@
-﻿using Lombeo.Api.Authorize.DTO.CourseDTO;
+﻿using Api_Project_Prn.Services.GoogleDriveService;
+using DocumentFormat.OpenXml.InkML;
+using Lombeo.Api.Authorize.DTO.CourseDTO;
 using Lombeo.Api.Authorize.DTO.MainCourseDTO;
 using Lombeo.Api.Authorize.Infra;
 using Lombeo.Api.Authorize.Infra.Constants;
 using Lombeo.Api.Authorize.Infra.Entities;
+using Lombeo.Api.Authorize.Infra.Enums;
 using Lombeo.Api.Authorize.Services.CacheService;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using NPOI.SS.Formula.Functions;
+using System.Linq;
 
 namespace Lombeo.Api.Authorize.Services.CourseService
 {
@@ -39,11 +45,13 @@ namespace Lombeo.Api.Authorize.Services.CourseService
     {
         private readonly LombeoAuthorizeContext _context;
         private readonly ICacheService _cacheService;
+        private readonly IGoogleDriveService _googleDriveService;
 
-        public CourseService(LombeoAuthorizeContext context, ICacheService cacheService)
+        public CourseService(LombeoAuthorizeContext context, ICacheService cacheService, IGoogleDriveService googleDriveService)
         {
             _context = context;
             _cacheService = cacheService;
+            _googleDriveService = googleDriveService;
         }
 
         public async Task<bool> DeleteCourse(int courseId, int actionBy)
@@ -479,10 +487,45 @@ namespace Lombeo.Api.Authorize.Services.CourseService
             return true;
         }
 
-        public Task<bool> RequestEnrollCourse(RequestEnrollDTO model)
+        public async Task<bool> RequestEnrollCourse(RequestEnrollDTO model)
         {
-            throw new NotImplementedException();
+            // Validate the request data
+            if (model == null || model.ActionBy <= 0 || model.CourseId <= 0)
+            {
+                throw new ApplicationException("Dữ liệu không hợp lệ!");
+            }
+
+            // Check if the user is already enrolled in the course
+            var existingEnrollment = await _context.EnrollCourses.FirstOrDefaultAsync(t => t.CourseId == model.CourseId && t.UserId == model.ActionBy);
+            if (existingEnrollment != null)
+            {
+                throw new ApplicationException("Bạn đã đăng ký khóa học này rồi!");
+            }
+
+            // Upload the transaction image if provided
+            string transactionImgUrl = null;
+            if (model.Image != null)
+            {
+                using var stream = model.Image.OpenReadStream();
+                transactionImgUrl = await _googleDriveService.UploadFile(stream, model.Image.FileName, model.Image.ContentType);
+            }
+
+            var enrollment = new EnrollCourse
+            {
+                UserId = model.ActionBy,
+                CourseId = model.CourseId,
+                InvoiceCode = model.InvoiceCode,
+                TransactionImgUrl = transactionImgUrl,
+                Status = EnrollStatus.Pending
+            };
+
+            await _context.AddAsync(enrollment);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
+
+
 
         //public async Task<Course> CreateCourse(CreateCourseDto dto)
         //{
