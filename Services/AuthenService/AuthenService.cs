@@ -195,10 +195,26 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 				Role = "User"
 			};
 
+			
 			await _context.Users.AddAsync(account);
-			await _context.SaveChangesAsync();
 
-			TriggerUpdateUserMemory(account.Id);
+            await _context.SaveChangesAsync();
+
+            var userProfile = new UserProfile
+            {
+                UserId = _context.Users.FirstOrDefault(t => t.Username == account.Username).Id,
+                FullName = model.Username,
+                PhoneNumber = model.Phone,
+                Gender = bool.Parse(model.Gender),
+                Address = model.Address,
+                Dob = model.birthDate,
+                School = model.School,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+            };
+            await _context.UserProfiles.AddAsync(userProfile);
+
+            TriggerUpdateUserMemory(account.Id);
 
 			return true;
 		}

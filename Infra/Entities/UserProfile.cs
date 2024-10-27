@@ -10,7 +10,7 @@ namespace Lombeo.Api.Authorize.Infra.Entities
         public string PhoneNumber { get; set; }
         public bool Gender { get; set; }
         public string Address { get; set; }
-        public string PicProfile { get; set; }
+        public string? PicProfile { get; set; }
         public DateTime Dob {  get; set; }
         public string? Note { get; set; }
         public string? School { get; set; }
