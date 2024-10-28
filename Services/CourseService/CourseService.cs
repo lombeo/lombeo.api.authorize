@@ -561,11 +561,6 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 
         public async Task<List<EnrollRequestDTO>> GetEnrollRequest(int UserId)
         {
-            if (!IsManager(UserId))
-            {
-                throw new ApplicationException(Message.CommonMessage.NOT_ALLOWED);
-            }
-
             var users = _context.UserProfiles.Where(t => !t.Deleted).ToList();
             var enrollments = _context.EnrollCourses.Where(t => !t.Deleted).ToList();
             var courses = _context.LearningCourses.Where(t => !t.Deleted).ToList();

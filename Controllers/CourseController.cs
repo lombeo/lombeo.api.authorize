@@ -154,6 +154,7 @@ namespace Lombeo.Api.Authorize.Controllers
             return await HandleException(_courseService.GetCourseRevenues(UserId));
         }
 
+        [AllowAnonymous]
         [HttpGet("get-enroll-request")]
         public async Task<ResponseDTO<List<EnrollRequestDTO>>> GetEnrollRequest()
         {
