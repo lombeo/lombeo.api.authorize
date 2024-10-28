@@ -163,7 +163,7 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
 			}
 			else
 			{
-				return null;
+				throw new ApplicationException(Message.AuthenMessage.INVALID_LOGIN);
 			}
 		}
 
