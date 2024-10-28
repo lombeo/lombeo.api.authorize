@@ -12,5 +12,6 @@
         public string Image { get; set; }
         public decimal RegularPrice { get; set; }
         public decimal DiscountedPrice { get; set; }
+        public bool IsEnroll { get; set; }
     }
 }

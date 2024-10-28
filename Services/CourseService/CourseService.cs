@@ -16,8 +16,10 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 {
     public interface ICourseService
     {
-        Task<CourseDetailDTO> GetCourseById(int courseId);
-        Task<List<AllCourseDTO>> GetAllCourse();
+        Task<CourseDetailDTO> GetCourseById(int courseId, int UserId);
+        Task<List<AllCourseDTO>> GetAllCourse(int UserId);
+        Task<List<CourseRevenueDTO>> GetCourseRevenues(int UserId);
+        Task<List<EnrollRequestDTO>> GetEnrollRequest(int UserId);
         Task<int> SaveCourse(SaveCourseDTO model);
         Task<bool> DeleteCourse(int courseId, int actionBy);
         Task<List<CourseWeek>> GetAllCourseWeeksById(int id, int actionBy);
@@ -72,7 +74,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
             return true;
         }
 
-        public async Task<List<AllCourseDTO>> GetAllCourse()
+        public async Task<List<AllCourseDTO>> GetAllCourse(int UserId)
         {
             var courses = await _context.LearningCourses
                 .Where(t => !t.Deleted)
@@ -97,14 +99,15 @@ namespace Lombeo.Api.Authorize.Services.CourseService
                              join ch in _context.CourseChapters on d.ChapterId equals ch.Id
                              join w in _context.CourseWeeks on ch.WeekId equals w.Id
                              where w.CourseId == c.Id
-                             select d).Sum(t => t.Duration)   // Example placeholder value; replace with actual calculation if available
+                             select d).Sum(t => t.Duration),   // Example placeholder value; replace with actual calculation if available
+                    IsEnroll = (UserId > 0)? ((_context.EnrollCourses.FirstOrDefault(t => t.UserId == UserId) != null)?true:false) : false
                 })
                 .ToListAsync();
 
             return courses;
         }
 
-        public async Task<CourseDetailDTO> GetCourseById(int courseId)
+        public async Task<CourseDetailDTO> GetCourseById(int courseId, int UserId)
         {
             var data = await _context.LearningCourses.Where(t => !t.Deleted).ToListAsync();
             var course = data.FirstOrDefault(t => t.Id == courseId);
@@ -183,7 +186,8 @@ namespace Lombeo.Api.Authorize.Services.CourseService
                     LearningObjectives = course.WhatYouWillLearn,
                     Skill = course.Skills,
                     Curriculum = curriculum,
-                    Reviews = Reviews // Assuming you have a method to populate MainReviewDTO
+                    Reviews = Reviews, // Assuming you have a method to populate MainReviewDTO
+                    IsEnroll = (UserId > 0) ? ((_context.EnrollCourses.FirstOrDefault(t => t.UserId == UserId) != null) ? true : false) : false
                 };
 
                 return result;
@@ -191,7 +195,6 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 
             throw new ApplicationException(Message.CommonMessage.NOT_FOUND);
         }
-
 
         public async Task<int> SaveCourse(SaveCourseDTO model)
         {
@@ -246,7 +249,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
             var user = allUsers.FirstOrDefault(t => t.Id == userId);
             if (user != null)
             {
-                if (user.Role == RoleConstValue.CONTENT_MANAGER)
+                if (user.Role == RoleConstValue.ADMIN)
                 {
                     return true;
                 }
@@ -474,7 +477,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
                 throw new ApplicationException(Message.CommonMessage.NOT_ALLOWED);
             }
 
-            var enroll = await _context.EnrollCourses.FirstOrDefaultAsync(t => t.Id == model.EnrollId);
+            var enroll = await _context.EnrollCourses.FirstOrDefaultAsync(t => t.InvoiceCode == model.InvoiceCode);
 
             if (enroll == null)
             {
@@ -483,6 +486,9 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 
             enroll.UpdatedAt = DateTime.UtcNow;
             enroll.Status = model.Status;
+
+            _context.Update(enroll);
+            await _context.SaveChangesAsync();
 
             return true;
         }
@@ -525,65 +531,60 @@ namespace Lombeo.Api.Authorize.Services.CourseService
             return true;
         }
 
+        public async Task<List<CourseRevenueDTO>> GetCourseRevenues(int UserId)
+        {
+            if(!IsManager(UserId))
+            {
+                throw new ApplicationException(Message.CommonMessage.NOT_ALLOWED);
+            }
 
+            var course = _context.LearningCourses.Where(t => !t.Deleted).ToList();
 
-        //public async Task<Course> CreateCourse(CreateCourseDto dto)
-        //{
-        //    var course = new Course
-        //    {
-        //        Title = dto.Title,
-        //        ImageUrl = dto.ImageUrl,
-        //        SubDescription = dto.SubDescription,
-        //        Price = dto.Price,
-        //        PercentOff = dto.PercentOff,
-        //        StudyTime = dto.StudyTime,
-        //        NumberSection = dto.NumberSection,
-        //        Introduction = dto.Introduction,
-        //        WhatWillYouLearn = dto.WhatWillYouLearn,
-        //        Skill = dto.Skill,
-        //        ActivityId = dto.ActivityId
-        //    };
+            var result = new List<CourseRevenueDTO>();
 
-        //    await _context.AddAsync(course);
-        //    await _context.SaveChangesAsync();
+            foreach (var c in course)
+            {
+                var revenue = c.Price * _context.EnrollCourses.Where(t => !t.Deleted && t.Status == EnrollStatus.Accept && t.CourseId == c.Id).Count();
+                result.Add(new CourseRevenueDTO
+                {
+                    Name = c.CourseName,
+                    Revenue = revenue
+                });
+            }
 
-        //    return course;
-        //}
+            return result;
+        }
 
-        //public async Task<Activity> CreateActivity(CreateActivityDto dto)
-        //{
-        //    var activity = new Activity
-        //    {
-        //        ActivityTitle = dto.ActivityTitle,
-        //        Duration = dto.Duration,
-        //        Priority = dto.Priority,
-        //        SectionPriority = dto.SectionPriority,
-        //        ActivityType = dto.ActivityType,
-        //        ActivityStatus = dto.ActivityStatus,
-        //        Major = dto.Major,
-        //        AllowPreview = dto.AllowPreview,
-        //        SectionId = dto.SectionId
-        //    };
+        public async Task<List<EnrollRequestDTO>> GetEnrollRequest(int UserId)
+{
+    if (!IsManager(UserId))
+    {
+        throw new ApplicationException(Message.CommonMessage.NOT_ALLOWED);
+    }
 
-        //    await _context.AddAsync(activity);
-        //    await _context.SaveChangesAsync();
+    var users = _context.UserProfiles.Where(t => !t.Deleted).ToList();
+    var enrollments = _context.EnrollCourses.Where(t => !t.Deleted).ToList();
+    var courses = _context.LearningCourses.Where(t => !t.Deleted).ToList();
 
-        //    return activity;
-        //}
+    var result = new List<EnrollRequestDTO>();
 
-        //public async Task<Section> CreateSection(CreateSectionDto dto)
-        //{
-        //    var section = new Section
-        //    {
-        //        SectionName = dto.SectionName,
-        //        SectionStatus = dto.SectionStatus,
-        //        ActivitiesId = dto.ActivitiesId
-        //    };
+    foreach (var e in enrollments)
+    {
+        var user = users.FirstOrDefault(t => t.UserId == e.UserId);
+        var course = courses.FirstOrDefault(t => t.Id == e.CourseId);
 
-        //    await _context.AddAsync(section);
-        //    await _context.SaveChangesAsync();
+        result.Add(new EnrollRequestDTO
+        {
+            InvoiceCode = e.InvoiceCode,
+            User = user?.FullName ?? "Không tìm thấy người dùng",
+            Course = course?.CourseName ?? "Không tìm thấy khóa học",
+            Status = e.Status,
+            Image = e.TransactionImgUrl
+        });
+    }
 
-        //    return section;
-        //}
+    return result;
+}
+
     }
 }

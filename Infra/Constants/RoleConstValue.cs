@@ -2,7 +2,7 @@
 {
 	public class RoleConstValue
 	{
-		public const string ADMIN = "Administrator";
+		public const string ADMIN = "Adminstrator";
 		public const string CONTENT_MANAGER = "Manager Content";
 		public const string OWNER_COURSE = "Owner course";
 		public const string STUDENT = "Student";

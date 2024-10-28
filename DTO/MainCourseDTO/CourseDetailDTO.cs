@@ -18,5 +18,6 @@
         public string[] Skill { get; set; }
         public List<MainWeekDTO> Curriculum { get; set; }
         public List<MainReviewDTO> Reviews { get; set; }
+        public bool IsEnroll { get; set; }
     }
 }

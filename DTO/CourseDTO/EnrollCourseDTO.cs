@@ -4,7 +4,7 @@ namespace Lombeo.Api.Authorize.DTO.CourseDTO
 {
     public class EnrollCourseDTO : BaseRequest
     {
-        public int EnrollId { get; set; }
+        public string InvoiceCode { get; set; }
         public EnrollStatus Status { get; set; }
     }
 }

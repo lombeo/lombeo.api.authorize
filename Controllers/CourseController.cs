@@ -25,14 +25,14 @@ namespace Lombeo.Api.Authorize.Controllers
 		[AllowAnonymous]
 		public async Task<ResponseDTO<CourseDetailDTO>> GetCourseById([FromQuery] int courseId)
 		{
-			return await HandleException(_courseService.GetCourseById(courseId));
+			return await HandleException(_courseService.GetCourseById(courseId, UserId));
 		}
 
 		[HttpGet("get-all-course")]
 		[AllowAnonymous]
 		public async Task<ResponseDTO<List<AllCourseDTO>>> GetAllCourse()
 		{
-			return await HandleException(_courseService.GetAllCourse());
+			return await HandleException(_courseService.GetAllCourse(UserId));
 		}
 
         [HttpGet("test")]
@@ -132,6 +132,25 @@ namespace Lombeo.Api.Authorize.Controllers
         {
             model.ActionBy = UserId;
             return await HandleException(_courseService.RequestEnrollCourse(model));
+        }
+
+        [HttpPost("manage-enroll-course")]
+        public async Task<ResponseDTO<bool>> ManageEnrollCourse([FromQuery] EnrollCourseDTO model)
+        {
+            model.ActionBy = UserId;
+            return await HandleException(_courseService.ManageEnrollCourse(model));
+        }
+
+        [HttpGet("get-course-revenue")]
+        public async Task<ResponseDTO<List<CourseRevenueDTO>>> GetCourseRevenues()
+        {
+            return await HandleException(_courseService.GetCourseRevenues(UserId));
+        }
+
+        [HttpGet("get-enroll-request")]
+        public async Task<ResponseDTO<List<EnrollRequestDTO>>> GetEnrollRequest()
+        {
+            return await HandleException(_courseService.GetEnrollRequest(UserId));
         }
 
         //[AllowAnonymous]
