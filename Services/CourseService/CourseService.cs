@@ -191,7 +191,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
                     Skill = course.Skills,
                     Curriculum = curriculum,
                     Reviews = Reviews, // Assuming you have a method to populate MainReviewDTO
-                    IsEnroll = (UserId > 0) ? ((_context.EnrollCourses.FirstOrDefault(t => t.UserId == UserId && t.CourseId == course.Id) != null) ? true : false) : false
+                    IsEnroll = (UserId > 0) ? ((_context.EnrollCourses.FirstOrDefault(t => t.UserId == UserId && t.CourseId == course.Id && t.Status == EnrollStatus.Accept) != null) ? true : false) : false
                 };
 
                 return result;
