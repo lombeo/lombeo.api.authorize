@@ -49,7 +49,14 @@ namespace Lombeo.Api.Authorize.Controllers
 			return await HandleException(_courseService.SaveCourse(model));
 		}
 
-		[HttpDelete("delete-course")]
+        [HttpPost("review-course")]
+        public async Task<ResponseDTO<bool>> ReviewCourse([FromBody] Review model)
+        {
+            model.ReviewerId = UserId;
+            return await HandleException(_courseService.ReviewCourse(model));
+        }
+
+        [HttpDelete("delete-course")]
 		public async Task<ResponseDTO<bool>> DeleteCourse([FromQuery] int courseId)
 		{
 			return await HandleException(_courseService.DeleteCourse(courseId, UserId));
@@ -153,25 +160,11 @@ namespace Lombeo.Api.Authorize.Controllers
             return await HandleException(_courseService.GetEnrollRequest(UserId));
         }
 
-        //[AllowAnonymous]
-        //[HttpPost("create-course")]
-        //public async Task<ResponseDTO<Course>> CreateCourse(CreateCourseDto model)
-        //{
-        //    return await HandleException(_courseService.CreateCourse(model));
-        //}
-
-        //[AllowAnonymous]
-        //[HttpPost("create-activity")]
-        //public async Task<ResponseDTO<Activity>> CreateActivity(CreateActivityDto model)
-        //{
-        //    return await HandleException(_courseService.CreateActivity(model));
-        //}
-
-        //[AllowAnonymous]
-        //[HttpPost("create-section")]
-        //public async Task<ResponseDTO<Section>> CreateSection(CreateSectionDto model)
-        //{
-        //    return await HandleException(_courseService.CreateSection(model));
-        //}
+        [HttpGet("export-enroll-requests")]
+        public async Task<IActionResult> ExportEnrollRequests()
+        {
+            var fileContent = await _courseService.ExportEnrollRequestsToExcel(UserId);
+            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "EnrollRequests.xlsx");
+        }
     }
 }

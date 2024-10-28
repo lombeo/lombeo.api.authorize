@@ -1,4 +1,5 @@
 ﻿using Api_Project_Prn.Services.GoogleDriveService;
+using ClosedXML.Excel;
 using DocumentFormat.OpenXml.InkML;
 using Lombeo.Api.Authorize.DTO.CourseDTO;
 using Lombeo.Api.Authorize.DTO.MainCourseDTO;
@@ -10,6 +11,8 @@ using Lombeo.Api.Authorize.Services.CacheService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NPOI.SS.Formula.Functions;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 
 namespace Lombeo.Api.Authorize.Services.CourseService
@@ -41,6 +44,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
         Task<bool> ReviewCourse(Review model);
         Task<bool> ManageEnrollCourse(EnrollCourseDTO model);
         Task<bool> RequestEnrollCourse(RequestEnrollDTO model);
+        Task<byte[]> ExportEnrollRequestsToExcel(int userId);
     }
 
     public class CourseService : ICourseService
@@ -584,6 +588,42 @@ namespace Lombeo.Api.Authorize.Services.CourseService
             }
 
             return result;
+        }
+
+        public async Task<byte[]> ExportEnrollRequestsToExcel(int userId)
+        {
+            // Get the data from GetEnrollRequest
+            var enrollRequests = await GetEnrollRequest(userId);
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("EnrollRequests");
+
+                // Add headers
+                worksheet.Cell(1, 1).Value = "Invoice Code";
+                worksheet.Cell(1, 2).Value = "User";
+                worksheet.Cell(1, 3).Value = "Course";
+                worksheet.Cell(1, 4).Value = "Status";
+                worksheet.Cell(1, 5).Value = "Image";
+
+                // Fill data
+                for (int i = 0; i < enrollRequests.Count; i++)
+                {
+                    var request = enrollRequests[i];
+                    worksheet.Cell(i + 2, 1).Value = request.InvoiceCode;
+                    worksheet.Cell(i + 2, 2).Value = request.User;
+                    worksheet.Cell(i + 2, 3).Value = request.Course;
+                    worksheet.Cell(i + 2, 4).Value = request.Status;
+                    worksheet.Cell(i + 2, 5).Value = request.Image;
+                }
+
+                // Save the workbook to a memory stream
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return stream.ToArray();
+                }
+            }
         }
 
     }
