@@ -104,7 +104,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
                              join w in _context.CourseWeeks on ch.WeekId equals w.Id
                              where w.CourseId == c.Id
                              select d).Sum(t => t.Duration),   // Example placeholder value; replace with actual calculation if available
-                    IsEnroll = (UserId > 0) ? ((_context.EnrollCourses.FirstOrDefault(t => t.UserId == UserId) != null) ? true : false) : false
+                    IsEnroll = (UserId > 0) ? ((_context.EnrollCourses.FirstOrDefault(t => t.UserId == UserId && t.CourseId == c.Id && t.Status == EnrollStatus.Accept) != null) ? true : false) : false
                 })
                 .ToListAsync();
 
