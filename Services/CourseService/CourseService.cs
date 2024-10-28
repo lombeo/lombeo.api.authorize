@@ -165,9 +165,9 @@ namespace Lombeo.Api.Authorize.Services.CourseService
                     });
                 }
 
-                var Reviews = _context.Reviews.Where(t => t.CourseId != course.Id).Select(t => new MainReviewDTO
+                var Reviews = _context.Reviews.Where(t => t.CourseId == course.Id).Select(t => new MainReviewDTO
                 {
-                    User = _context.UserProfiles.FirstOrDefault(c => c.UserId == t.ReviewerId).FullName,
+                    User = (_context.UserProfiles.FirstOrDefault(c => c.UserId == t.ReviewerId).FullName) ?? "Người dùng ẩn danh",
                     Rating = t.Rating,
                     Comment = t.Description
                 }).ToList();
@@ -191,7 +191,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
                     Skill = course.Skills,
                     Curriculum = curriculum,
                     Reviews = Reviews, // Assuming you have a method to populate MainReviewDTO
-                    IsEnroll = (UserId > 0) ? ((_context.EnrollCourses.FirstOrDefault(t => t.UserId == UserId) != null) ? true : false) : false
+                    IsEnroll = (UserId > 0) ? ((_context.EnrollCourses.FirstOrDefault(t => t.UserId == UserId && t.CourseId == course.Id) != null) ? true : false) : false
                 };
 
                 return result;
@@ -438,13 +438,13 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 
         public async Task<bool> ReviewCourse(Review model)
         {
-            var flag = await CheckRegisteredCourse(model.CourseId, model.ReviewerId);
-            if (flag == false)
+            var flag = await _context.EnrollCourses.FirstOrDefaultAsync(t => t.UserId == model.ReviewerId && t.CourseId == model.CourseId);
+            if (flag == null)
             {
                 throw new ApplicationException(Message.CourseMessage.NOT_REGISTERED);
             }
             var exist = await _context.Reviews.FirstOrDefaultAsync(t => t.CourseId == model.CourseId && t.ReviewerId == model.ReviewerId && t.Id != model.Id);
-            if (exist == null)
+            if (exist != null)
             {
                 throw new ApplicationException(Message.CourseMessage.ALREADY_REVIEW);
             }
