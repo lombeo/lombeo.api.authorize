@@ -214,6 +214,8 @@ namespace Lombeo.Api.Authorize.Services.AuthenService
             };
             await _context.UserProfiles.AddAsync(userProfile);
 
+            await _context.SaveChangesAsync();
+
             TriggerUpdateUserMemory(account.Id);
 
 			return true;

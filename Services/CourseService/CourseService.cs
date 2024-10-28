@@ -100,7 +100,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
                              join w in _context.CourseWeeks on ch.WeekId equals w.Id
                              where w.CourseId == c.Id
                              select d).Sum(t => t.Duration),   // Example placeholder value; replace with actual calculation if available
-                    IsEnroll = (UserId > 0)? ((_context.EnrollCourses.FirstOrDefault(t => t.UserId == UserId) != null)?true:false) : false
+                    IsEnroll = (UserId > 0) ? ((_context.EnrollCourses.FirstOrDefault(t => t.UserId == UserId) != null) ? true : false) : false
                 })
                 .ToListAsync();
 
@@ -533,7 +533,7 @@ namespace Lombeo.Api.Authorize.Services.CourseService
 
         public async Task<List<CourseRevenueDTO>> GetCourseRevenues(int UserId)
         {
-            if(!IsManager(UserId))
+            if (!IsManager(UserId))
             {
                 throw new ApplicationException(Message.CommonMessage.NOT_ALLOWED);
             }
@@ -556,35 +556,35 @@ namespace Lombeo.Api.Authorize.Services.CourseService
         }
 
         public async Task<List<EnrollRequestDTO>> GetEnrollRequest(int UserId)
-{
-    if (!IsManager(UserId))
-    {
-        throw new ApplicationException(Message.CommonMessage.NOT_ALLOWED);
-    }
-
-    var users = _context.UserProfiles.Where(t => !t.Deleted).ToList();
-    var enrollments = _context.EnrollCourses.Where(t => !t.Deleted).ToList();
-    var courses = _context.LearningCourses.Where(t => !t.Deleted).ToList();
-
-    var result = new List<EnrollRequestDTO>();
-
-    foreach (var e in enrollments)
-    {
-        var user = users.FirstOrDefault(t => t.UserId == e.UserId);
-        var course = courses.FirstOrDefault(t => t.Id == e.CourseId);
-
-        result.Add(new EnrollRequestDTO
         {
-            InvoiceCode = e.InvoiceCode,
-            User = user?.FullName ?? "Không tìm thấy người dùng",
-            Course = course?.CourseName ?? "Không tìm thấy khóa học",
-            Status = e.Status,
-            Image = e.TransactionImgUrl
-        });
-    }
+            if (!IsManager(UserId))
+            {
+                throw new ApplicationException(Message.CommonMessage.NOT_ALLOWED);
+            }
 
-    return result;
-}
+            var users = _context.UserProfiles.Where(t => !t.Deleted).ToList();
+            var enrollments = _context.EnrollCourses.Where(t => !t.Deleted).ToList();
+            var courses = _context.LearningCourses.Where(t => !t.Deleted).ToList();
+
+            var result = new List<EnrollRequestDTO>();
+
+            foreach (var e in enrollments)
+            {
+                var user = users.FirstOrDefault(t => t.UserId == e.UserId);
+                var course = courses.FirstOrDefault(t => t.Id == e.CourseId);
+
+                result.Add(new EnrollRequestDTO
+                {
+                    InvoiceCode = e.InvoiceCode,
+                    User = user?.FullName ?? "Không tìm thấy người dùng",
+                    Course = course?.CourseName ?? "Không tìm thấy khóa học",
+                    Status = e.Status,
+                    Image = e.TransactionImgUrl
+                });
+            }
+
+            return result;
+        }
 
     }
 }
